@@ -49,8 +49,7 @@ export function animate(fps){
     if(elapsed > 1000/fps){ then = now - (elapsed % 1000/fps); }
 
 
-    const velocity = {x:50, y:50}; //TODO set in object
-    obj.move(mouse, velocity);
+   
     obj.drawTexture(obj.color)
     // TODO smoothly update movment of rectangle from its origin to cursor location
     

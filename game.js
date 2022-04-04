@@ -9,10 +9,9 @@
 
 // -------------------------------- IMPORTS --------------------------------
 
-import * as Functions from './modules/functions.js';
+import * as Logic from './logic.js';
 
 // -------------------------------- VARIABLES --------------------------------
-
 
 const canvas = document.getElementById('board');
 canvas.width = window.innerWidth;
@@ -20,4 +19,4 @@ canvas.height = window.innerHeight;
 
 // -------------------------------- FUNCTIONS --------------------------------
 
-Functions.animate(60)
+Logic.animate(60);
