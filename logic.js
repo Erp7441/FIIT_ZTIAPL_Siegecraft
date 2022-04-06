@@ -5,12 +5,25 @@ import * as Controllers from './controllers/Controllers.js';
 
 // -------------------------------- VARIABLES --------------------------------
 
-let then = Date.now(), now, elapsed;
+let then = Date.now(), now, elapsed; // Used to calculate elapsed time (FPS)
+
+// TODO use arrays for multiple timeouts
+let timeoutID; // Store the timeout ID for later use
 
 const canvas = document.getElementById('board');
 const context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+
+let playerModel
+let playerView
+let playerController
+let enemyModel
+let enemyView
+let enemyController
+let buildingModel
+let buildingView
+let buildingController
 
 const mouse = {
     x: innerWidth / 2,
@@ -33,8 +46,8 @@ function clearScreen() {
     context.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-export function animate(fps){
-    requestAnimationFrame(animate);
+export function animate(fps, state){
+    let frameID = requestAnimationFrame(() => animate(fps, state));
     clearScreen();
 
     // Calculating time elapsed since last loop
@@ -59,75 +72,85 @@ export function animate(fps){
         // Colliding enemy
     }
 
-    if(playerController.isColliding(buildingController)){
+    // TODO compact collision code to a function
+    if(playerController.isColliding(buildingController) && buildingController.model.faction != 'player'){
         console.log("Coliding building");
-        setInterval(() => {
-            if(playerController.isColliding(buildingController)){
-                buildingController.model.color = playerController.model.color;
-                buildingController.model.faction = 'player';
-            }
-            else{ return; }
-        }, 5000);
+        
+        if(timeoutID === undefined){
+            timeoutID = setTimeout(() => {
+                if(playerController.isColliding(buildingController)){
+                    buildingController.model.color = playerController.model.color;
+                    buildingController.model.faction = 'player'
+                }
+                clearTimeout(timeoutID);
+                timeoutID = undefined;
+            }, 5000);    
+        }        
+    }
+
+    if(buildingController.model.faction === 'player'){;
+        state.gameOver = true;
+        cancelAnimationFrame(frameID);
     }
 }
 
-let playerModel = new Models.GuardModel.GuardModel({
-    texture: 'green',
-    position: {x:130, y:130},
-    dimensions: {width:50, height:50},
-    hp: 100,
-    armor: 100
-});
+export function initialize(){
+    playerModel = new Models.GuardModel.GuardModel({
+        texture: 'green',
+        position: {x:130, y:130},
+        dimensions: {width:50, height:50},
+        hp: 100,
+        armor: 100
+    });
 
-let playerView = new Views.View.View({
-    model: playerModel,
-    canvas: canvas,
-    context: context
-});
+    playerView = new Views.View.View({
+        model: playerModel,
+        canvas: canvas,
+        context: context
+    });
 
-let playerController = new Controllers.GuardController.GuardController({
-    model: playerModel,
-    view: playerView,
-});
+    playerController = new Controllers.GuardController.GuardController({
+        model: playerModel,
+        view: playerView,
+    });
 
-let enemyModel = new Models.GuardModel.GuardModel({
-    texture: 'red',
-    position: {x:50, y:30},
-    dimensions: {width:50, height:50},
-    hp: 100,
-    armor: 100
-});
+    enemyModel = new Models.GuardModel.GuardModel({
+        texture: 'red',
+        position: {x:50, y:30},
+        dimensions: {width:50, height:50},
+        hp: 100,
+        armor: 100
+    });
 
-let enemyView = new Views.View.View({
-    model: enemyModel,
-    canvas: canvas,
-    context: context
-});
+    enemyView = new Views.View.View({
+        model: enemyModel,
+        canvas: canvas,
+        context: context
+    });
+    
+    enemyController = new Controllers.GuardController.GuardController({
+        model: enemyModel,
+        view: enemyView,
+    });
+    
+    buildingModel = new Models.BuildingModel.BuildingModel({
+        texture: 'grey',
+        position: {x:300, y:30},
+        dimensions: {width:50, height:50},
+        type: 'Building',
+        faction: 'neutral',
+        hp: 100,
+    });
+    
+    buildingView = new Views.View.View({
+        model: buildingModel,
+        canvas: canvas,
+        context: context
+    });
+    
+    buildingController = new Controllers.GuardController.GuardController({
+        model: buildingModel,
+        view: buildingView,
+    });
 
-let enemyController = new Controllers.GuardController.GuardController({
-    model: enemyModel,
-    view: enemyView,
-});
-
-let buildingModel = new Models.BuildingModel.BuildingModel({
-    texture: 'grey',
-    position: {x:300, y:30},
-    dimensions: {width:50, height:50},
-    type: 'Building',
-    faction: 'neutral',
-    hp: 100,
-});
-
-let buildingView = new Views.View.View({
-    model: buildingModel,
-    canvas: canvas,
-    context: context
-});
-
-let buildingController = new Controllers.GuardController.GuardController({
-    model: buildingModel,
-    view: buildingView,
-});
-
-//let obj = new Classes.GameObject({});
-//let obj2 = new Classes.GameObject('red', {x:0, y:0},{width:150, height:150});
+}

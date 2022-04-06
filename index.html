@@ -4,10 +4,35 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module" src="game.js" async></script>
+    <link rel="stylesheet" href="style/style.css">
+    <script type="module" src="game.js"></script>
     <title>RTS</title>
 </head>
 <body>
+    <div id="mainMenu">
+        <!-- TODO spravit z buttonov obrazky -->
+        <button id = "playButton">Play Game</button>
+        <button id = "optionsButton">Options</button>
+        <button id = "instructionsButton">Instructions</button>
+    </div>
+    <div id = "optionsMenu">
+        <button id = "soundButton">Sound</button>
+        <button id = "musicButton">Music</button>
+        <!-- 
+        TODO spojazdnit audio element
+        <audio id = "music" src="sounds/MainTheme.wav" controls loop></audio>
+        -->
+        <button class = "backButtons">Back</button>
+    </div>
+    <div id = "instructionsMenu">
+        <h1>TU BUDE POPIS AKO SA OVLADA HRA :)</h1>
+        <button class = "backButtons">Back</button>
+    </div>
+    <div id = "gameOverScreen">
+        <h1>GAME OVER</h1>
+        <button id = "retryButton">Retry</button>
+        <button class = "backButtons">Back to menu</button>
+    </div>
     <canvas id = "board"></canvas>
 </body>
 </html>

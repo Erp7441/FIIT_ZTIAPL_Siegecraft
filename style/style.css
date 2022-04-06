@@ -1,0 +1,29 @@
+#mainMenu{
+    position: absolute;
+    z-index: 1;
+    visibility: visible;
+}
+
+#optionsMenu{
+    position: absolute;
+    z-index: 1;
+    visibility: hidden;
+}
+
+#instructionsMenu{
+    position: absolute;
+    z-index: 1;
+    visibility: hidden;
+}
+
+#gameOverScreen{
+    position: absolute;
+    z-index: 1;
+    visibility: hidden;
+}
+
+#board{
+    position: absolute;
+    z-index: 0;
+    visibility: hidden;
+}
