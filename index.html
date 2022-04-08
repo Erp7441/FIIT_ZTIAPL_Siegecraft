@@ -4,41 +4,39 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="styles/style.css">
     <script type="module" src="game.js"></script>
     <title>RTS</title>
 </head>
 <body>
-    <div id="mainMenu">
-        <!-- TODO spravit z buttonov obrazky -->
-        <img src="" alt="Play Button" id="playButton">
+    <audio autoplay loop id="musicElement">
+        <source src="sounds/MainTheme.wav" type="audio/wav">
+    </audio>
+    <div id="mainMenu" class="menu">
+        <div class="mainMenuButtons" id="playButton"></div>
         <br>
-        <img src="" alt="Options Button" id="optionsButton">
+        <div class="mainMenuButtons" id="settingsButton"></div>
         <br>
-        <img src="" alt="Instructions Button" id="instructionsButton">
+        <div class="mainMenuButtons" id="controlsButton"></div>
+        <br>
+        <div class="mainMenuButtons quitButtons"></div>
     </div>
-    <div id = "optionsMenu">
-        <img src="" alt="Sound Button" id="soundButton">
+    <div id="settingsMenu" class="menu">
+        <div class="settingsMenuButtons" id="soundButton"></div>
         <br>
-        <img src="" alt="Music Button" id="musicButton">
-        <!-- 
-        TODO spojazdnit audio element
-        <audio id = "music" src="sounds/MainTheme.wav" controls loop></audio>
-        -->
+        <div class="settingsMenuButtons" id="musicButton"></div>
         <br>
-        <img src="" alt="Back Button" class="backButtons">
+        <div class="backButtons settingsMenuButtons"></div>
     </div>
-    <div id = "instructionsMenu">
-        <h1>TU BUDE POPIS AKO SA OVLADA HRA :)</h1>
-        <br>
-        <img src="" alt="Back Button" class="backButtons">
+    <div id="controlsMenu" class="menu">
+        <div class="backButtons" id="controlsMenuButton"></div>
     </div>
-    <div id = "gameOverScreen">
-        <h1>GAME OVER</h1>
-        <img src="" alt="Retry Button" id="retryButton">
+    <div id="gameOverScreen" class="menu">
+        <div class="gameOverButtons" id="retryButton"></div>
         <br>
-        <img src="" alt="Back Button" class="backButtons">
+        <div class="gameOverButtons backButtons"></div>
+        <div class="gameOverButtons mainMenuButtons quitButtons"></div>
     </div>
-    <canvas id = "board"></canvas>
+    <canvas id="board"></canvas>
 </body>
 </html>

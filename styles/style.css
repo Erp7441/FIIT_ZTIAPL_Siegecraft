@@ -1,0 +1,81 @@
+.menu{
+    width: 960px;
+    height: 960px;
+    position: absolute;
+    z-index: 1;
+    background-repeat: no-repeat;
+}
+
+#mainMenu{
+    visibility: visible;
+    background-image: url('/images/main_menu.png');
+}
+
+#settingsMenu{
+    visibility: hidden;
+    background-image: url('/images/settings_menu.png');
+}
+
+#controlsMenu{
+    visibility: hidden;
+    background-image: url('/images/controls_menu.png');
+}
+
+#gameOverScreen{
+    visibility: hidden;
+    background-image: url('/images/game_over.png');
+}
+
+#board{
+    position: absolute;
+    z-index: 0;
+    visibility: hidden;
+}
+
+.mainMenuButtons {
+    margin-bottom: 1.2rem;
+    width: 22.25rem;
+    height: 5.5rem;
+    position: relative;
+    top: 20.5rem;
+    left: 20rem;
+}
+
+.mainMenuButtons:not(:first-child){
+    margin-bottom: 2.2rem;
+}
+
+.settingsMenuButtons{
+    margin-bottom: 2rem;
+    width: 22.25rem;
+    height: 5.5rem;
+    position: relative;
+    top: 21.5rem;
+    left: 20rem;
+}
+
+.settingsMenuButtons:not(:first-child){
+    margin-bottom: 5.2rem;
+}
+
+#controlsMenuButton{
+    margin-bottom: 2rem;
+    width: 22.25rem;
+    height: 5.5rem;
+    position: relative;
+    top: 42.5rem;
+    left: 20rem;
+}
+
+.gameOverButtons{
+    margin-bottom: 2rem;
+    width: 22.25rem;
+    height: 5.5rem;
+    position: relative;
+    top: 24.5rem;
+    left: 20rem;
+}
+
+.gameOverButtons:last-child{
+    margin-top: 3.5rem;
+}

@@ -11,16 +11,19 @@ import * as Logic from './logic.js';
 // -------------------------------- VARIABLES --------------------------------
 
 const canvas = document.getElementById('board');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = 960;
+canvas.height = 960;
 
 const playButton = document.getElementById('playButton');
-const optionsButton = document.getElementById('optionsButton');
-const instructionsButton = document.getElementById('instructionsButton');
+const settingsButton = document.getElementById('settingsButton');
+const controlsButton = document.getElementById('controlsButton');
 const retryButton = document.getElementById('retryButton');
 const backButtons = document.getElementsByClassName('backButtons');
+const quitButtons = document.getElementsByClassName('quitButtons');
+const soundButton = document.getElementById('soundButton');
+const musicButton = document.getElementById('musicButton');
 
-let state = { gameOver: false, victory: false };;
+let state = { gameOver: false, victory: false };
 
 // -------------------------------- FUNCTIONS --------------------------------
 
@@ -37,6 +40,7 @@ function playGame(){
     state.gameOver = false;
     state.victory = false;
 
+    music(false); // Stops music on playGame // TODO change music on playGame
     Logic.initialize();
     Logic.animate(60, state);
     stateListener();
@@ -58,29 +62,29 @@ function stateListener() {
     listener();
 }
 
-function showOptions(){
+function showSettings(){
     const mainMenu = document.getElementById('mainMenu');
-    const optionsMenu = document.getElementById('optionsMenu');
+    const settingsMenu = document.getElementById('settingsMenu');
     mainMenu.style.visibility = 'hidden';
-    optionsMenu.style.visibility = 'visible';
+    settingsMenu.style.visibility = 'visible';
 }
 
-function showInstructions(){
+function showControls(){
     const mainMenu = document.getElementById('mainMenu');
-    const instructionsMenu = document.getElementById('instructionsMenu');
+    const controlsMenu = document.getElementById('controlsMenu');
     mainMenu.style.visibility = 'hidden';
-    instructionsMenu.style.visibility = 'visible';
+    controlsMenu.style.visibility = 'visible';
 }
 
 function showMainMenu(){
     const mainMenu = document.getElementById('mainMenu');
-    const optionsMenu = document.getElementById('optionsMenu');
-    const instructionsMenu = document.getElementById('instructionsMenu');
+    const settingsMenu = document.getElementById('settingsMenu');
+    const controlsMenu = document.getElementById('controlsMenu');
     const gameOverScreen = document.getElementById('gameOverScreen');
 
     mainMenu.style.visibility = 'visible';
-    optionsMenu.style.visibility = 'hidden';
-    instructionsMenu.style.visibility = 'hidden';
+    settingsMenu.style.visibility = 'hidden';
+    controlsMenu.style.visibility = 'hidden';
     gameOverScreen.style.visibility = 'hidden';
 }
 
@@ -91,13 +95,53 @@ function showGameOver(){
     canvas.style.visibility = 'hidden';
 }
 
+function quitGame(){
+    alert('Thank you for playing!');
+    window.close();
+    location.replace("about:blank"); // If window.close() fails then redirect to blank page
+}
+
+function sound(){
+    alert('soundButton');
+    // TODO implement sound FX switch here
+}
+
+function music(override){
+    // TODO use .volume attribue to set volume gradually
+    // TODO store settings booleans in local storage
+
+    const musicElement = document.getElementById('musicElement');
+    let isPlaying;
+
+    if(override != undefined){
+        isPlaying = !override;
+    }
+    else{
+        isPlaying = !musicElement.paused
+    }
+
+    if(isPlaying){
+        musicElement.pause();
+    }
+    else{
+        musicElement.currentTime = 0;
+        musicElement.play();
+    }
+}
+
 // ----------------------------- EVENT LISTENERS ----------------------------
 
 playButton.addEventListener('click', playGame);
-optionsButton.addEventListener('click', showOptions);
-instructionsButton.addEventListener('click', showInstructions);
+settingsButton.addEventListener('click', showSettings);
+controlsButton.addEventListener('click', showControls);
 retryButton.addEventListener('click', playGame);
+soundButton.addEventListener('click', sound);
+musicButton.addEventListener('click', () => music());
 
-for (let index = 0; index < backButtons.length; index++) {
-    backButtons[index].addEventListener('click', showMainMenu);
+for (const element of quitButtons){
+    element.addEventListener('click', quitGame);
+}
+
+for (const element of backButtons) {
+    element.addEventListener('click', showMainMenu);
 }

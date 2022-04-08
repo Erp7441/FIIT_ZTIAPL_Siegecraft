@@ -36,7 +36,9 @@ addEventListener('click', (event) => {
     mouse.x = event.clientX;
     mouse.y = event.clientY;
 
-    playerController.setbIsMoving(true);
+    if(playerController){
+        playerController.setbIsMoving(true);
+    }
 })
 
 // -------------------------------- FUNCTIONS --------------------------------
