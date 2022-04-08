@@ -24,8 +24,6 @@ const soundButton = document.getElementById('soundButton');
 const musicButton = document.getElementById('musicButton');
 const buttons = document.getElementsByClassName('buttons');
 
-let bPlayFx = true; // TODO move to local storage
-
 let state = { gameOver: false, victory: false };
 
 // -------------------------------- FUNCTIONS --------------------------------
@@ -105,40 +103,40 @@ function quitGame(){
 }
 
 function sound(){
-    if(bPlayFx){
-        bPlayFx = false;
+    if(localStorage.getItem('bPlayFx') === 'true'){
+        localStorage.setItem('bPlayFx', false);
     }
     else{
-        bPlayFx = true;
+        localStorage.setItem('bPlayFx', true);
     }
 }
 
 function music(override){
     // TODO use .volume attribue to set volume gradually
-    // TODO store settings booleans in local storage
 
     const musicElement = document.getElementById('musicElement');
-    let isPlaying;
 
-    if(override != undefined){
-        isPlaying = !override;
+    if(override !== undefined){
+        localStorage.setItem('bPlayMusic', !override);
     }
     else{
-        isPlaying = !musicElement.paused
+        localStorage.setItem('bPlayMusic', !musicElement.paused);
     }
 
-    if(isPlaying){
+    if(localStorage.getItem('bPlayMusic') === 'true'){
         musicElement.pause();
+        localStorage.setItem('bPlayMusic', false);
     }
     else{
         musicElement.currentTime = 0;
         musicElement.play();
+        localStorage.setItem('bPlayMusic', true);
     }
 }
 
 function playFx(path){
-    
-    if(!bPlayFx){ return; }
+
+    if(localStorage.getItem('bPlayFx') === 'false'){ return; }
 
     try {
 
@@ -155,6 +153,19 @@ function playFx(path){
 }
 
 // ----------------------------- EVENT LISTENERS ----------------------------
+
+window.addEventListener('load', () => {
+    if(localStorage.getItem('bPlayFx') === null){
+        localStorage.setItem('bPlayFx', true);
+    }
+    if(localStorage.getItem('bPlayMusic') === null){
+        localStorage.setItem('bPlayMusic', true);
+        
+    }
+    if(localStorage.getItem('bPlayMusic') === 'true'){
+        music(true);
+    }
+});
 
 playButton.addEventListener('click', playGame);
 settingsButton.addEventListener('click', showSettings);

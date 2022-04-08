@@ -90,7 +90,7 @@ export function animate(fps, state){
         }        
     }
 
-    if(buildingController.model.faction === 'player'){;
+    if(buildingController.model.faction === 'player'){
         state.gameOver = true;
         cancelAnimationFrame(frameID);
     }
