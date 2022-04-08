@@ -22,6 +22,9 @@ const backButtons = document.getElementsByClassName('backButtons');
 const quitButtons = document.getElementsByClassName('quitButtons');
 const soundButton = document.getElementById('soundButton');
 const musicButton = document.getElementById('musicButton');
+const buttons = document.getElementsByClassName('buttons');
+
+let bPlayFx = true; // TODO move to local storage
 
 let state = { gameOver: false, victory: false };
 
@@ -102,8 +105,12 @@ function quitGame(){
 }
 
 function sound(){
-    alert('soundButton');
-    // TODO implement sound FX switch here
+    if(bPlayFx){
+        bPlayFx = false;
+    }
+    else{
+        bPlayFx = true;
+    }
 }
 
 function music(override){
@@ -129,6 +136,24 @@ function music(override){
     }
 }
 
+function playFx(path){
+    
+    if(!bPlayFx){ return; }
+
+    try {
+
+        // TODO get rid of "Uncaught (in promise) DOMException: The fetching process for the media resource was aborted by the user agent at the user's request."
+
+        const fx = new Audio(path);
+        fx.load();
+        fx.volume = 0.5; // TODO set volume dynamically
+        fx.play();
+    } catch (error) {
+        console.log(error);
+    }
+    
+}
+
 // ----------------------------- EVENT LISTENERS ----------------------------
 
 playButton.addEventListener('click', playGame);
@@ -138,10 +163,14 @@ retryButton.addEventListener('click', playGame);
 soundButton.addEventListener('click', sound);
 musicButton.addEventListener('click', () => music());
 
-for (const element of quitButtons){
-    element.addEventListener('click', quitGame);
+for (const button of buttons) {
+    button.addEventListener('click', () => playFx('sounds/combat/metal4.wav'));
 }
 
-for (const element of backButtons) {
-    element.addEventListener('click', showMainMenu);
+for (const button of quitButtons){
+    button.addEventListener('click', quitGame);
+}
+
+for (const button of backButtons) {
+    button.addEventListener('click', showMainMenu);
 }
