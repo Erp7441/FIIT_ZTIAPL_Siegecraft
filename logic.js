@@ -33,8 +33,8 @@ const mouse = {
 // -------------------------------- EVENT LISTENERS --------------------------------
 
 addEventListener('click', (event) => {
-    mouse.x = event.clientX;
-    mouse.y = event.clientY;
+    mouse.x = event.clientX + generateRandom(0, 20);
+    mouse.y = event.clientY + generateRandom(0, 20);
 
     playerUnits.forEach(playerUnit  => {
         playerUnit.setbIsMoving(true);
@@ -48,15 +48,29 @@ function clearScreen() {
     context.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-function generateRandom(max, spawnPoints){
-    let position = Math.floor(Math.random() * max);
-    spawnPoints.forEach(point => {
-        if(Math.hypot(position, point) === 40 || Math.hypot(position, point) === -40){
-            position = generateRandom(max);
-        }
-    })
-    spawnPoints.push(position);
-    return position;
+function generateRandom({min, max}){
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function generateCoordinates({min, max, storage, spacing}){
+    let random = {x: generateRandom({min:min, max:max}), y: generateRandom({min:min, max:max})};
+
+    if(storage){
+        storage.forEach(point => {
+            const distance = Math.hypot(random.x - point.x, random.y - point.y);
+            if(distance <= spacing){
+                random = generateCoordinates({
+                    min: min,
+                    max: max,
+                    storage: storage,
+                    spacing: spacing
+                });
+                return random;
+            }            
+        })
+        storage.push(random);
+    }
+    return random;
 }
 
 export function animate(fps, state){
@@ -230,7 +244,12 @@ export function initialize(){
         }),
         new Models.BuildingModel.BuildingModel({
             texture: 'grey',
-            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            position: generateCoordinates({
+                min: 0,
+                max: 600,
+                storage: spawnPoints,
+                spacing: 150
+            }),
             dimensions: {width:50, height:50},
             type: 'Building',
             faction: 'neutral',
@@ -238,7 +257,12 @@ export function initialize(){
         }),
         new Models.BuildingModel.BuildingModel({
             texture: 'grey',
-            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            position: generateCoordinates({
+                min: 0,
+                max: 600,
+                storage: spawnPoints,
+                spacing: 150
+            }),
             dimensions: {width:50, height:50},
             type: 'Building',
             faction: 'neutral',
@@ -246,7 +270,12 @@ export function initialize(){
         }),
         new Models.BuildingModel.BuildingModel({
             texture: 'grey',
-            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            position: generateCoordinates({
+                min: 0,
+                max: 600,
+                storage: spawnPoints,
+                spacing: 150
+            }),
             dimensions: {width:50, height:50},
             type: 'Building',
             faction: 'neutral',
@@ -254,7 +283,12 @@ export function initialize(){
         }),
         new Models.BuildingModel.BuildingModel({
             texture: 'grey',
-            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            position: generateCoordinates({
+                min: 0,
+                max: 600,
+                storage: spawnPoints,
+                spacing: 150
+            }),
             dimensions: {width:50, height:50},
             type: 'Building',
             faction: 'neutral',
@@ -262,7 +296,12 @@ export function initialize(){
         }),
         new Models.BuildingModel.BuildingModel({
             texture: 'grey',
-            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            position: generateCoordinates({
+                min: 0,
+                max: 600,
+                storage: spawnPoints,
+                spacing: 150
+            }),
             dimensions: {width:50, height:50},
             type: 'Building',
             faction: 'neutral',
@@ -270,7 +309,12 @@ export function initialize(){
         }),
         new Models.BuildingModel.BuildingModel({
             texture: 'grey',
-            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            position: generateCoordinates({
+                min: 0,
+                max: 600,
+                storage: spawnPoints,
+                spacing: 150
+            }),
             dimensions: {width:50, height:50},
             type: 'Building',
             faction: 'neutral',
@@ -278,7 +322,12 @@ export function initialize(){
         }),
         new Models.BuildingModel.BuildingModel({
             texture: 'grey',
-            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            position: generateCoordinates({
+                min: 0,
+                max: 600,
+                storage: spawnPoints,
+                spacing: 150
+            }),
             dimensions: {width:50, height:50},
             type: 'Building',
             faction: 'neutral',
@@ -286,7 +335,12 @@ export function initialize(){
         }),
         new Models.BuildingModel.BuildingModel({
             texture: 'grey',
-            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            position: generateCoordinates({
+                min: 0,
+                max: 600,
+                storage: spawnPoints,
+                spacing: 150
+            }),
             dimensions: {width:50, height:50},
             type: 'Building',
             faction: 'neutral',
