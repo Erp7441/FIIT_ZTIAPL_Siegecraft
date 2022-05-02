@@ -23,6 +23,7 @@ let buildingViews
 let buildingUnits
 let playerUnits = new Array();
 let enemyUnits = new Array();
+let spawnPoints = new Array();
 
 const mouse = {
     x: innerWidth / 2,
@@ -45,6 +46,17 @@ addEventListener('click', (event) => {
 function clearScreen() {
     context.fillStyle = 'white';
     context.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function generateRandom(max, spawnPoints){
+    let position = Math.floor(Math.random() * max);
+    spawnPoints.forEach(point => {
+        if(Math.hypot(position, point) === 40 || Math.hypot(position, point) === -40){
+            position = generateRandom(max);
+        }
+    })
+    spawnPoints.push(position);
+    return position;
 }
 
 export function animate(fps, state){
@@ -195,6 +207,10 @@ export function animate(fps, state){
 
 export function initialize(){
     
+    playerUnits = new Array();
+    enemyUnits = new Array();
+    spawnPoints = new Array();
+
     buildingModels =[
         new Models.BuildingModel.BuildingModel({
             texture: 'green',
@@ -214,7 +230,7 @@ export function initialize(){
         }),
         new Models.BuildingModel.BuildingModel({
             texture: 'grey',
-            position: {x:600, y:50},
+            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
             dimensions: {width:50, height:50},
             type: 'Building',
             faction: 'neutral',
@@ -222,7 +238,7 @@ export function initialize(){
         }),
         new Models.BuildingModel.BuildingModel({
             texture: 'grey',
-            position: {x:350, y:350},
+            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
             dimensions: {width:50, height:50},
             type: 'Building',
             faction: 'neutral',
@@ -230,7 +246,47 @@ export function initialize(){
         }),
         new Models.BuildingModel.BuildingModel({
             texture: 'grey',
-            position: {x:0, y:600},
+            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            dimensions: {width:50, height:50},
+            type: 'Building',
+            faction: 'neutral',
+            hp: 100,
+        }),
+        new Models.BuildingModel.BuildingModel({
+            texture: 'grey',
+            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            dimensions: {width:50, height:50},
+            type: 'Building',
+            faction: 'neutral',
+            hp: 100,
+        }),
+        new Models.BuildingModel.BuildingModel({
+            texture: 'grey',
+            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            dimensions: {width:50, height:50},
+            type: 'Building',
+            faction: 'neutral',
+            hp: 100,
+        }),
+        new Models.BuildingModel.BuildingModel({
+            texture: 'grey',
+            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            dimensions: {width:50, height:50},
+            type: 'Building',
+            faction: 'neutral',
+            hp: 100,
+        }),
+        new Models.BuildingModel.BuildingModel({
+            texture: 'grey',
+            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
+            dimensions: {width:50, height:50},
+            type: 'Building',
+            faction: 'neutral',
+            hp: 100,
+        }),
+        new Models.BuildingModel.BuildingModel({
+            texture: 'grey',
+            position: {x:generateRandom(600, spawnPoints), y:generateRandom(600, spawnPoints)},
             dimensions: {width:50, height:50},
             type: 'Building',
             faction: 'neutral',
@@ -263,6 +319,31 @@ export function initialize(){
             model: buildingModels[4],
             canvas: canvas,
             context: context
+        }),
+        new Views.View.View({
+            model: buildingModels[5],
+            canvas: canvas,
+            context: context
+        }),
+        new Views.View.View({
+            model: buildingModels[6],
+            canvas: canvas,
+            context: context
+        }),
+        new Views.View.View({
+            model: buildingModels[7],
+            canvas: canvas,
+            context: context
+        }),
+        new Views.View.View({
+            model: buildingModels[8],
+            canvas: canvas,
+            context: context
+        }),
+        new Views.View.View({
+            model: buildingModels[9],
+            canvas: canvas,
+            context: context
         })
     ]
     
@@ -286,6 +367,26 @@ export function initialize(){
         new Controllers.BuildingController.BuildingController({
             model: buildingModels[4],
             view: buildingViews[4],
+        }),
+        new Controllers.BuildingController.BuildingController({
+            model: buildingModels[5],
+            view: buildingViews[5],
+        }),
+        new Controllers.BuildingController.BuildingController({
+            model: buildingModels[6],
+            view: buildingViews[6],
+        }),
+        new Controllers.BuildingController.BuildingController({
+            model: buildingModels[7],
+            view: buildingViews[7],
+        }),
+        new Controllers.BuildingController.BuildingController({
+            model: buildingModels[8],
+            view: buildingViews[8],
+        }),
+        new Controllers.BuildingController.BuildingController({
+            model: buildingModels[9],
+            view: buildingViews[9],
         })
     ]
 
