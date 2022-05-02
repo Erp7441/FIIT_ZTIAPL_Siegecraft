@@ -7,11 +7,6 @@ import * as Controllers from './controllers/Controllers.js';
 
 let then = Date.now(), now, elapsed; // Used to calculate elapsed time (FPS)
 
-// TODO use arrays for multiple timeouts
-let timeoutID; // Store the timeout ID for later use
-let timeoutIDPlayer;
-let timeoutIDEnemy;
-
 const canvas = document.getElementById('board');
 const context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -25,7 +20,7 @@ let enemyView
 let enemyController
 let buildingModels
 let buildingViews
-let buildingControllers
+let buildingUnits
 let playerUnits = new Array();
 let enemyUnits = new Array();
 
@@ -40,9 +35,9 @@ addEventListener('click', (event) => {
     mouse.x = event.clientX;
     mouse.y = event.clientY;
 
-    if(playerController){
-        playerController.setbIsMoving(true);
-    }
+    playerUnits.forEach(playerUnit  => {
+        playerUnit.setbIsMoving(true);
+    })
 })
 
 // -------------------------------- FUNCTIONS --------------------------------
@@ -64,146 +59,156 @@ export function animate(fps, state){
 
     if(elapsed > 1000/fps){ then = now - (elapsed % 1000/fps); }
 
-    
-    if(playerController.model.bIsMoving === true){
-        const velocity = {x:50, y:50}; //TODO set in object
-        playerController.move(mouse, velocity);
-    }
-
-    buildingControllers.forEach(buildingController => {
-        buildingController.view.drawTexture();
-    });
-    enemyController.view.drawTexture();
-    playerController.view.drawTexture();
-    
+    let index = 0;
     playerUnits.forEach(playerUnit => {
-        playerUnit.view.drawTexture();
-    })
 
+        if(playerUnit.model.hp <= 0){
+            playerUnits.splice(index, 1);
+        }
+
+        playerUnit.view.drawTexture();
+        if(playerUnit.model.bIsMoving === true){
+            const velocity = {x:50, y:50}; //TODO set in object
+            playerUnit.move(mouse, velocity); // TODO remove mouse and add something more sensible here
+        }
+
+        enemyUnits.forEach(enemyUnit => {
+            if(playerUnit.isColliding(enemyUnit) && enemyUnit.model.attacked === undefined) {
+
+                // Attacking enemy
+                enemyUnit.model.attacked = setTimeout(() => {
+                    playerUnit.attack(enemyUnit);
+                    clearTimeout(enemyUnit.model.attacked);
+                    enemyUnit.model.attacked = undefined;
+                }, 1000);
+                
+            }
+        })
+
+        index++;
+    });
+
+    index = 0;
     enemyUnits.forEach(enemyUnit => {
         enemyUnit.view.drawTexture();
-    })
-    
-    if(playerController.model.hp <= 0) {
-        state.gameOver = true;
-        cancelAnimationFrame(frameID);
-    }
+        // TODO move enemy units
 
-    if(playerController.isColliding(enemyController)){
-        console.log("Colliding enemy");
-        // Colliding enemy
-    }
-    
-    // TODO compact collision code to a function
-    buildingControllers.forEach(buildingController => {
-        if(playerController.isColliding(buildingController) && buildingController.model.faction != 'player'){
-            console.log("Coliding building");
-            
-            if(timeoutID === undefined){
-                timeoutID = setTimeout(() => {
-                    if(playerController.isColliding(buildingController)){
-                        buildingController.model.color = playerController.model.color;
-                        buildingController.model.faction = 'player'
-                    }
-                    clearTimeout(timeoutID);
-                    timeoutID = undefined;
-                }, 5000);    
-            }        
+        if(enemyUnit.model.hp <= 0){
+            playerUnits.splice(index, 1);
         }
-    
-        if(buildingController.model.faction === 'player'){
-            if(timeoutIDPlayer === undefined && playerUnits.length < 6){
-                timeoutIDPlayer = setTimeout(() => {
-                    playerUnits.push(buildingController.createUnit({
+
+        playerUnits.forEach(playerUnit => {
+            if(enemyUnit.isColliding(playerUnit) && playerUnit.model.attacked === undefined){
+
+                // Attacking player
+                playerUnit.model.attacked = setTimeout(() => {
+                    enemyUnit.attack(playerUnit);
+                    clearTimeout(playerUnit.model.attacked);
+                    playerUnit.model.attacked = undefined;
+                }, 1000);
+                
+            }
+        })
+
+        index++;
+    });
+
+    buildingUnits.forEach(buildingUnit => {
+
+        buildingUnit.view.drawTexture();
+
+        // Game end conditions
+        if(buildingUnit.model.type === 'base' && buildingUnit.model.hp <= 0) {
+
+            if(buildingUnit.model.faction === 'player'){
+                state.gameOver = true;
+            }
+            else if(buildingUnit.model.faction === 'enemy'){
+                state.victory = true;
+            }
+            cancelAnimationFrame(frameID);
+        }
+
+        // Collision detection
+        playerUnits.forEach(playerUnit => {
+
+            if(playerUnit.isColliding(buildingUnit) && buildingUnit.model.faction == 'neutral'){
+                if(playerUnit.model.timeoutID === undefined){
+                    playerUnit.model.timeoutID  = setTimeout(() => {
+                        if(playerUnit.isColliding(buildingUnit)){
+                            buildingUnit.model.texture = playerUnit.model.texture;
+                            buildingUnit.model.faction = 'player'
+                        }
+                        clearTimeout(playerUnit.model.timeoutID);
+                        playerUnit.model.timeoutID  = undefined;
+                    }, 5000);    
+                }        
+            }
+        })
+        
+
+        // Generating units
+        if(buildingUnit.model.faction === 'player'){
+            if(buildingUnit.model.timeoutID === undefined && playerUnits.length < 6){
+                buildingUnit.model.timeoutID = setTimeout(() => {
+                    playerUnits.push(buildingUnit.createUnit({
                         position: {
-                            x: buildingController.model.position.x + Math.random() * 30,
-                            y: buildingController.model.position.y + Math.random() * 30
+                            x: buildingUnit.model.position.x + Math.random() * 30,
+                            y: buildingUnit.model.position.y + Math.random() * 30
                         },
                         dimensions: {width: 50, height: 50},
                         hp:100,
                         armor: 100
                     }, canvas, context));
-                    clearTimeout(timeoutIDPlayer);
-                    timeoutIDPlayer = undefined;
+                    clearTimeout(buildingUnit.model.timeoutID);
+                    buildingUnit.model.timeoutID = undefined;
                 }, 5000); 
             }
         }
-        else if(buildingController.model.faction === 'enemy'){
-            if(timeoutIDEnemy === undefined && enemyUnits.length < 6){
-                timeoutIDEnemy = setTimeout(() => {
-                    enemyUnits.push(buildingController.createUnit({
+        else if(buildingUnit.model.faction === 'enemy'){
+            if(buildingUnit.model.timeoutID === undefined && enemyUnits.length < 6){
+                buildingUnit.model.timeoutID = setTimeout(() => {
+                    enemyUnits.push(buildingUnit.createUnit({
                         position: {
-                            x: buildingController.model.position.x + Math.random() * 30,
-                            y: buildingController.model.position.y + Math.random() * 30
+                            x: buildingUnit.model.position.x + Math.random() * 30,
+                            y: buildingUnit.model.position.y + Math.random() * 30
                         },
                         dimensions: {width: 50, height: 50},
                         hp:100,
                         armor: 100
                     }, canvas, context));
-                    clearTimeout(timeoutIDEnemy);
-                    timeoutIDEnemy = undefined;
+                    clearTimeout(buildingUnit.model.timeoutID);
+                    buildingUnit.model.timeoutID = undefined;
                 }, 5000);
             }
         }
+        
     });
 
-    //TODO implementuj attack
-    //TODO implementuj vypocet vzdialenosti medzi dvoma objektami
     //TODO vymysliet ako manipulovat hracove a enemakove units
     //TODO prepojit zakladne, pridat nejaku premennu ktora bude odkazovat na dalsiu zakladnu ALEBO radius ktory by urcil tieto spojenia a urcil by kam sa treba pohnut
-
+    //TODO priama detekcia kolizie alebo vypocet vzdialenosti? Kde a preco?
     
 
     
 }
 
 export function initialize(){
-    playerModel = new Models.GuardModel.GuardModel({
-        texture: 'green',
-        position: {x:130, y:130},
-        dimensions: {width:50, height:50},
-        hp: 100,
-        armor: 100
-    });
-
-    playerView = new Views.View.View({
-        model: playerModel,
-        canvas: canvas,
-        context: context
-    });
-
-    playerController = new Controllers.GuardController.GuardController({
-        model: playerModel,
-        view: playerView,
-    });
-
-
-    // TODO treba toto pri incializacii, Nebolo by spravit iba buildingy?
-    enemyModel = new Models.GuardModel.GuardModel({
-        texture: 'red',
-        position: {x:500, y:600},
-        dimensions: {width:50, height:50},
-        hp: 100,
-        armor: 100
-    });
-
-    enemyView = new Views.View.View({
-        model: enemyModel,
-        canvas: canvas,
-        context: context
-    });
-    
-    enemyController = new Controllers.GuardController.GuardController({
-        model: enemyModel,
-        view: enemyView,
-    });
     
     buildingModels =[
+        new Models.BuildingModel.BuildingModel({
+            texture: 'green',
+            position: {x:0, y:0},
+            dimensions: {width:50, height:50},
+            type: 'Base',
+            faction: 'player',
+            hp: 100,
+        }),
         new Models.BuildingModel.BuildingModel({
             texture: 'red',
             position: {x:600, y:600},
             dimensions: {width:50, height:50},
-            type: 'Building',
+            type: 'Base',
             faction: 'enemy',
             hp: 100,
         }),
@@ -254,9 +259,14 @@ export function initialize(){
             canvas: canvas,
             context: context
         }),
+        new Views.View.View({
+            model: buildingModels[4],
+            canvas: canvas,
+            context: context
+        })
     ]
     
-    buildingControllers = [
+    buildingUnits = [
         new Controllers.BuildingController.BuildingController({
             model: buildingModels[0],
             view: buildingViews[0],
@@ -272,6 +282,10 @@ export function initialize(){
         new Controllers.BuildingController.BuildingController({
             model: buildingModels[3],
             view: buildingViews[3],
+        }),
+        new Controllers.BuildingController.BuildingController({
+            model: buildingModels[4],
+            view: buildingViews[4],
         })
     ]
 

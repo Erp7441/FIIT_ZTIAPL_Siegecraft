@@ -7,7 +7,9 @@ export class GuardController extends Character.CharacterController {
             view: view
         });
     }
-    attack(){
-        console.log(model.Name + " Attacking...");
+    attack(enemy){
+        if(enemy && enemy.model && enemy.model.hp && this.model && this.model.damage){
+            enemy.model.hp -= this.model.damage;
+        }
     }
 }

@@ -11,24 +11,25 @@ export class BuildingController extends Unit.UnitController {
         });
     }
     createUnit({position, dimensions, hp, armor}, canvas, context) {
-        let color;
+        let texture;
 
         if(this.model.faction === 'player'){
-            color = 'green';
+            texture = 'green';
         }
         else if(this.model.faction === 'enemy'){
-            color = 'red';
+            texture = 'red';
         }
         else if(this.model.faction === 'neutral'){
-            color = 'gray';
+            texture = 'gray';
         }
 
         let model = new GuardModel.GuardModel({
-            texture: color,
+            texture: texture,
             position: position,
             dimensions: dimensions,
             hp: hp,
-            armor: armor
+            armor: armor,
+            damage: 10
         });
     
         let view = new View.View({
@@ -36,11 +37,10 @@ export class BuildingController extends Unit.UnitController {
             canvas: canvas,
             context: context
         });
-    
-        let controller = new GuardController.GuardController({
+
+        return new GuardController.GuardController({
             model: model,
             view: view,
         });
-        return {model, view, controller};
     }
 }

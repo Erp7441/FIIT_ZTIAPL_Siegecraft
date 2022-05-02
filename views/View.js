@@ -7,7 +7,7 @@ export class View{
     drawTexture(){
         //let object = new Image();
         //object.src = this.texture;
-        this.context.fillStyle = this.model.color || 'black';
+        this.context.fillStyle = this.model.texture || 'black';
         this.context.fillRect(
             this.model.position.x,
             this.model.position.y,

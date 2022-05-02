@@ -1,6 +1,6 @@
 export class GameObjectModel{
-    constructor({color, position, dimensions}){
-        this.color = color;
+    constructor({texture, position, dimensions}){
+        this.texture = texture;
         this.position = {
             x: position.x,
             y: position.y

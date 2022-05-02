@@ -12,4 +12,8 @@ export class GameObjectController{
                 this.model.position.y + this.model.dimensions.height > collidingObject.model.position.y
         )
     }
+
+    getDistance(object) {
+        return Math.hypot(object.model.position.x - this.model.position.x, object.model.position.y - this.model.position.y);
+    }
 }
