@@ -5,22 +5,14 @@ import * as Controllers from './controllers/Controllers.js';
 
 // -------------------------------- VARIABLES --------------------------------
 
-let then = Date.now(), now, elapsed; // Used to calculate elapsed time (FPS)
+let then = Date.now(), now = undefined, elapsed = undefined; // Used to calculate elapsed time (FPS)
 
 const canvas = document.getElementById('board');
 const context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let playerModel
-let playerView
-let playerController
-let enemyModel
-let enemyView
-let enemyController
-let buildingModels
-let buildingViews
-let buildingUnits
+let buildingUnits = new Array();
 let playerUnits = new Array();
 let enemyUnits = new Array();
 let spawnPoints = new Array();
@@ -33,8 +25,8 @@ const mouse = {
 // -------------------------------- EVENT LISTENERS --------------------------------
 
 addEventListener('click', (event) => {
-    mouse.x = event.clientX + generateRandom(0, 20);
-    mouse.y = event.clientY + generateRandom(0, 20);
+    mouse.x = event.clientX;
+    mouse.y = event.clientY;
 
     playerUnits.forEach(playerUnit  => {
         playerUnit.setbIsMoving(true);
@@ -75,15 +67,22 @@ function generateCoordinates({min, max, storage, spacing}){
 
 export function animate(fps, state){
     let frameID = requestAnimationFrame(() => animate(fps, state));
-    clearScreen();
-
     // Calculating time elapsed since last loop
     now = Date.now();
     elapsed = now - then;
 
     // if enough time has passed since last iteration generate a new frame
 
-    if(elapsed > 1000/fps){ then = now - (elapsed % 1000/fps); }
+    if(elapsed > 1000/fps){
+        then = now - (elapsed % 1000/fps);
+        
+        // Drawing code
+        clearScreen();
+        playerUnits.forEach(playerUnit => playerUnit.view.drawTexture());
+        enemyUnits.forEach(enemyUnit => enemyUnit.view.drawTexture());
+        buildingUnits.forEach(buildingUnit => buildingUnit.view.drawTexture());
+    }
+
 
     let index = 0;
     playerUnits.forEach(playerUnit => {
@@ -92,10 +91,12 @@ export function animate(fps, state){
             playerUnits.splice(index, 1);
         }
 
-        playerUnit.view.drawTexture();
         if(playerUnit.model.bIsMoving === true){
             const velocity = {x:50, y:50}; //TODO set in object
-            playerUnit.move(mouse, velocity); // TODO remove mouse and add something more sensible here
+            playerUnit.move({
+                x: mouse.x + generateRandom({min: 0, max: 20}),
+                y: mouse.y + generateRandom({min: 0, max: 20})
+            }, velocity); // TODO remove mouse and add something more sensible here
         }
 
         enemyUnits.forEach(enemyUnit => {
@@ -116,7 +117,6 @@ export function animate(fps, state){
 
     index = 0;
     enemyUnits.forEach(enemyUnit => {
-        enemyUnit.view.drawTexture();
         // TODO move enemy units
 
         if(enemyUnit.model.hp <= 0){
@@ -140,8 +140,6 @@ export function animate(fps, state){
     });
 
     buildingUnits.forEach(buildingUnit => {
-
-        buildingUnit.view.drawTexture();
 
         // Game end conditions
         if(buildingUnit.model.type === 'base' && buildingUnit.model.hp <= 0) {
@@ -214,18 +212,24 @@ export function animate(fps, state){
     //TODO vymysliet ako manipulovat hracove a enemakove units
     //TODO prepojit zakladne, pridat nejaku premennu ktora bude odkazovat na dalsiu zakladnu ALEBO radius ktory by urcil tieto spojenia a urcil by kam sa treba pohnut
     //TODO priama detekcia kolizie alebo vypocet vzdialenosti? Kde a preco?
-    
+
 
     
 }
 
 export function initialize(){
     
+    // Used to calculate elapsed time (FPS)
+    then = Date.now()
+    now = undefined
+    elapsed = undefined; 
+
+    buildingUnits = new Array();
     playerUnits = new Array();
     enemyUnits = new Array();
     spawnPoints = new Array();
 
-    buildingModels =[
+    let buildingModels =[
         new Models.BuildingModel.BuildingModel({
             texture: 'green',
             position: {x:0, y:0},
@@ -348,7 +352,7 @@ export function initialize(){
         })
     ]
     
-    buildingViews = [
+    let buildingViews = [
         new Views.View.View({
             model: buildingModels[0],
             canvas: canvas,
