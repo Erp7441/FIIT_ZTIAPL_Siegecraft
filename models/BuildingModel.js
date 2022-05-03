@@ -7,8 +7,7 @@ export class BuildingModel extends Unit.UnitModel{
             position:position,
             dimensions:dimensions,
             type:type,
-            hp:hp,
-            timeoutID:undefined
+            hp:hp            
         });
         this.faction = faction;
     }

@@ -29,7 +29,8 @@ export class BuildingController extends Unit.UnitController {
             dimensions: dimensions,
             hp: hp,
             armor: armor,
-            damage: 10
+            damage: 10,
+            faction: this.model.faction
         });
     
         let view = new View.View({

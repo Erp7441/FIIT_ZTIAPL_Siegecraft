@@ -55,7 +55,7 @@ export class CharacterController extends Unit.UnitController {
                             y: position.y
                         },
                         dimensions:{
-                            width: 10,
+                            width: 10, // TODO set dynamically
                             height: 10
                         }
                     }

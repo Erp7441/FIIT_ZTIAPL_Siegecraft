@@ -11,5 +11,6 @@ export class UnitModel extends GameObject.GameObjectModel{
         this.hp = hp;
         this.bIsMoving = false;
         this.timeoutID = undefined;
+        this.moved = undefined;
     }
 }

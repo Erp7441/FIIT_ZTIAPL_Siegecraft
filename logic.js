@@ -28,9 +28,11 @@ addEventListener('click', (event) => {
     mouse.x = event.clientX;
     mouse.y = event.clientY;
 
-    playerUnits.forEach(playerUnit  => {
-        playerUnit.setbIsMoving(true);
-    })
+    console.log({mouseX: mouse.x, mouseY: mouse.y});
+
+    /*playerUnits.forEach(playerUnit  => {
+        playerUnit.setbIsMoving(true); // TODO remove
+    })*/
 })
 
 // -------------------------------- FUNCTIONS --------------------------------
@@ -90,14 +92,22 @@ export function animate(fps, state){
         if(playerUnit.model.hp <= 0){
             playerUnits.splice(index, 1);
         }
+        
+        // Move to nearest building
+        /*if(playerUnit.model.moved === undefined){
+            playerUnit.model.moved = setTimeout(() => {
+                playerUnit.moveToBuilding(buildingUnits);
+                playerUnit.model.moved = undefined;
+            }, 1000/fps);
+        }*/ // TODO uncomment this
 
-        if(playerUnit.model.bIsMoving === true){
+        /*if(playerUnit.model.bIsMoving === true){
             const velocity = {x:50, y:50}; //TODO set in object
             playerUnit.move({
                 x: mouse.x + generateRandom({min: 0, max: 20}),
                 y: mouse.y + generateRandom({min: 0, max: 20})
             }, velocity); // TODO remove mouse and add something more sensible here
-        }
+        }*/
 
         enemyUnits.forEach(enemyUnit => {
             if(playerUnit.isColliding(enemyUnit) && enemyUnit.model.attacked === undefined) {
@@ -119,10 +129,24 @@ export function animate(fps, state){
     enemyUnits.forEach(enemyUnit => {
         // TODO move enemy units
 
+        //? Algorithm
+        // 1. Iterate buldings
+        // 2. Smallest distance from building
+        // 3. Move to the building
+
+        
         if(enemyUnit.model.hp <= 0){
             playerUnits.splice(index, 1);
         }
-
+        
+        // Move to nearest building
+        if(enemyUnit.model.moved === undefined){
+            enemyUnit.model.moved = setTimeout(() => {
+                enemyUnit.moveToBuilding(buildingUnits);
+                enemyUnit.model.moved = undefined;
+            }, 1000/fps);
+        }
+        
         playerUnits.forEach(playerUnit => {
             if(enemyUnit.isColliding(playerUnit) && playerUnit.model.attacked === undefined){
 
@@ -173,7 +197,7 @@ export function animate(fps, state){
 
         // Generating units
         if(buildingUnit.model.faction === 'player'){
-            if(buildingUnit.model.timeoutID === undefined && playerUnits.length < 6){
+            if(buildingUnit.model.timeoutID === undefined && playerUnits.length < 3){
                 buildingUnit.model.timeoutID = setTimeout(() => {
                     playerUnits.push(buildingUnit.createUnit({
                         position: {
@@ -190,7 +214,7 @@ export function animate(fps, state){
             }
         }
         else if(buildingUnit.model.faction === 'enemy'){
-            if(buildingUnit.model.timeoutID === undefined && enemyUnits.length < 6){
+            if(buildingUnit.model.timeoutID === undefined && enemyUnits.length < 3){
                 buildingUnit.model.timeoutID = setTimeout(() => {
                     enemyUnits.push(buildingUnit.createUnit({
                         position: {
@@ -210,7 +234,7 @@ export function animate(fps, state){
     });
 
     //TODO vymysliet ako manipulovat hracove a enemakove units
-    //TODO prepojit zakladne, pridat nejaku premennu ktora bude odkazovat na dalsiu zakladnu ALEBO radius ktory by urcil tieto spojenia a urcil by kam sa treba pohnut
+    
     //TODO priama detekcia kolizie alebo vypocet vzdialenosti? Kde a preco?
 
 
@@ -220,8 +244,8 @@ export function animate(fps, state){
 export function initialize(){
     
     // Used to calculate elapsed time (FPS)
-    then = Date.now()
-    now = undefined
+    then = Date.now();
+    now = undefined;
     elapsed = undefined; 
 
     buildingUnits = new Array();

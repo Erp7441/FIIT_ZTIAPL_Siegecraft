@@ -1,7 +1,7 @@
 import * as Character from "./CharacterModel.js";
 
 export class GuardModel extends Character.CharacterModel{
-    constructor({texture, position, dimensions, hp, armor, damage}){
+    constructor({texture, position, dimensions, hp, armor, damage, faction}){
         super({
             texture: texture,
             position: {
@@ -12,7 +12,7 @@ export class GuardModel extends Character.CharacterModel{
             type: "Guard",
             hp: hp,
             damage: damage,
-            timeoutID: undefined,
+            faction: faction
         });
         this.armor = armor;
         this.attacked = undefined;
