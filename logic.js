@@ -16,6 +16,7 @@ let buildingUnits = new Array();
 let playerUnits = new Array();
 let enemyUnits = new Array();
 let spawnPoints = new Array();
+let numberOfBuldings = 10; // Controls number of neural buildings spawned into the game
 
 const mouse = {
     x: innerWidth / 2,
@@ -28,7 +29,7 @@ addEventListener('click', (event) => {
     mouse.x = event.clientX;
     mouse.y = event.clientY;
 
-    console.log({mouseX: mouse.x, mouseY: mouse.y});
+    // TODO remove console.log({mouseX: mouse.x, mouseY: mouse.y});
 
     playerUnits.forEach(playerUnit  => {
         playerUnit.setbIsMoving(true); // TODO remove
@@ -44,6 +45,42 @@ function clearScreen() {
 
 function generateRandom({min, max}){
     return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function createBuildings(numberOfBuildings, canvas, context, storage) {
+
+    for(let i = 0; i < numberOfBuildings; i++) {
+        const model = new Models.BuildingModel.BuildingModel({
+            texture: 'grey',
+            position: generateCoordinates({
+                min: 0,
+                max: 600,
+                storage: spawnPoints,
+                spacing: 150
+            }),
+            dimensions: {width:50, height:50},
+            type: 'Building',
+            faction: 'neutral',
+            hp: 100,
+        });
+    
+        const view = new Views.View.View({
+            model: model,
+            canvas: canvas,
+            context: context
+        })
+
+        storage.push(
+            new Controllers.BuildingController.BuildingController({
+                model: model,
+                view: view,
+            })
+        )
+    }
+
+    
+
+    
 }
 
 function generateCoordinates({min, max, storage, spacing}){
@@ -88,17 +125,19 @@ export function animate(fps, state){
 
     let index = 0;
     playerUnits.forEach(playerUnit => {
-        console.log(playerUnit.model.velocity.x);
+
         if(playerUnit.model.hp <= 0){
             playerUnits.splice(index, 1);
         }
         
         if(playerUnit.model.bIsMoving === true){
             playerUnit.move({
-                x: mouse.x + generateRandom({min: 0, max: 20}),
-                y: mouse.y + generateRandom({min: 0, max: 20})
+                x: mouse.x,
+                y: mouse.y
             });
         }
+
+        let enemyIndex = 0;
         enemyUnits.forEach(enemyUnit => {
             if(playerUnit.isColliding(enemyUnit) && enemyUnit.model.attacked === undefined) {
 
@@ -108,6 +147,31 @@ export function animate(fps, state){
                     clearTimeout(enemyUnit.model.attacked);
                     enemyUnit.model.attacked = undefined;
                 }, 1000);
+
+                if(enemyUnit.model.hp <= 0) {
+                    enemyUnits.splice(enemyIndex, 1);
+                }
+                
+            }
+            enemyIndex++;
+        })
+        buildingUnits.forEach(buildingUnit => {
+            if(
+                buildingUnit.model.faction === 'enemy' &&
+                playerUnit.isColliding(buildingUnit) && buildingUnit.model.attacked === undefined){
+
+                // Attacking enemy building
+                buildingUnit.model.attacked = setTimeout(() => {
+                    playerUnit.attack(buildingUnit);
+                    clearTimeout(buildingUnit.model.attacked);
+                    buildingUnit.model.attacked = undefined;
+                }, 1000);
+
+                if(buildingUnit.model.hp <= 0){
+                    buildingUnit.model.hp = 100;
+                    buildingUnit.model.faction = playerUnit.model.faction;
+                    buildingUnit.model.texture = playerUnit.model.texture; // TODO remove this
+                }
                 
             }
         })
@@ -130,18 +194,46 @@ export function animate(fps, state){
                 enemyUnit.moveToBuilding(buildingUnits);
                 enemyUnit.model.moved = undefined;
             }, 1000/fps);
-        }
+        }       
         
+        let playerIndex = 0;
         playerUnits.forEach(playerUnit => {
             if(enemyUnit.isColliding(playerUnit) && playerUnit.model.attacked === undefined){
 
+
+                // TODO implement defend and stop when in combat
                 // Attacking player
                 playerUnit.model.attacked = setTimeout(() => {
                     enemyUnit.attack(playerUnit);
                     clearTimeout(playerUnit.model.attacked);
                     playerUnit.model.attacked = undefined;
                 }, 1000);
+
+                if(playerUnit.model.hp <= 0) {
+                    playerUnits.splice(playerIndex, 1);
+                }
                 
+            }
+            playerIndex++;
+        })
+
+        buildingUnits.forEach(buildingUnit => {
+            if(
+                buildingUnit.model.faction === 'player' &&
+                enemyUnit.isColliding(buildingUnit) && buildingUnit.model.attacked === undefined){
+
+                // Attacking player building
+                buildingUnit.model.attacked = setTimeout(() => {
+                    enemyUnit.attack(buildingUnit);
+                    clearTimeout(buildingUnit.model.attacked);
+                    buildingUnit.model.attacked = undefined;
+                }, 1000);
+
+                if(buildingUnit.model.hp <= 0){
+                    buildingUnit.model.hp = 100;
+                    buildingUnit.model.faction = enemyUnit.model.faction;
+                    buildingUnit.model.texture = enemyUnit.model.texture; // TODO remove this
+                }
             }
         })
 
@@ -265,110 +357,6 @@ export function initialize(){
             type: 'Base',
             faction: 'enemy',
             hp: 100,
-        }),
-        new Models.BuildingModel.BuildingModel({
-            texture: 'grey',
-            position: generateCoordinates({
-                min: 0,
-                max: 600,
-                storage: spawnPoints,
-                spacing: 150
-            }),
-            dimensions: {width:50, height:50},
-            type: 'Building',
-            faction: 'neutral',
-            hp: 100,
-        }),
-        new Models.BuildingModel.BuildingModel({
-            texture: 'grey',
-            position: generateCoordinates({
-                min: 0,
-                max: 600,
-                storage: spawnPoints,
-                spacing: 150
-            }),
-            dimensions: {width:50, height:50},
-            type: 'Building',
-            faction: 'neutral',
-            hp: 100,
-        }),
-        new Models.BuildingModel.BuildingModel({
-            texture: 'grey',
-            position: generateCoordinates({
-                min: 0,
-                max: 600,
-                storage: spawnPoints,
-                spacing: 150
-            }),
-            dimensions: {width:50, height:50},
-            type: 'Building',
-            faction: 'neutral',
-            hp: 100,
-        }),
-        new Models.BuildingModel.BuildingModel({
-            texture: 'grey',
-            position: generateCoordinates({
-                min: 0,
-                max: 600,
-                storage: spawnPoints,
-                spacing: 150
-            }),
-            dimensions: {width:50, height:50},
-            type: 'Building',
-            faction: 'neutral',
-            hp: 100,
-        }),
-        new Models.BuildingModel.BuildingModel({
-            texture: 'grey',
-            position: generateCoordinates({
-                min: 0,
-                max: 600,
-                storage: spawnPoints,
-                spacing: 150
-            }),
-            dimensions: {width:50, height:50},
-            type: 'Building',
-            faction: 'neutral',
-            hp: 100,
-        }),
-        new Models.BuildingModel.BuildingModel({
-            texture: 'grey',
-            position: generateCoordinates({
-                min: 0,
-                max: 600,
-                storage: spawnPoints,
-                spacing: 150
-            }),
-            dimensions: {width:50, height:50},
-            type: 'Building',
-            faction: 'neutral',
-            hp: 100,
-        }),
-        new Models.BuildingModel.BuildingModel({
-            texture: 'grey',
-            position: generateCoordinates({
-                min: 0,
-                max: 600,
-                storage: spawnPoints,
-                spacing: 150
-            }),
-            dimensions: {width:50, height:50},
-            type: 'Building',
-            faction: 'neutral',
-            hp: 100,
-        }),
-        new Models.BuildingModel.BuildingModel({
-            texture: 'grey',
-            position: generateCoordinates({
-                min: 0,
-                max: 600,
-                storage: spawnPoints,
-                spacing: 150
-            }),
-            dimensions: {width:50, height:50},
-            type: 'Building',
-            faction: 'neutral',
-            hp: 100,
         })
     ]
     
@@ -382,46 +370,6 @@ export function initialize(){
             model: buildingModels[1],
             canvas: canvas,
             context: context
-        }),
-        new Views.View.View({
-            model: buildingModels[2],
-            canvas: canvas,
-            context: context
-        }),
-        new Views.View.View({
-            model: buildingModels[3],
-            canvas: canvas,
-            context: context
-        }),
-        new Views.View.View({
-            model: buildingModels[4],
-            canvas: canvas,
-            context: context
-        }),
-        new Views.View.View({
-            model: buildingModels[5],
-            canvas: canvas,
-            context: context
-        }),
-        new Views.View.View({
-            model: buildingModels[6],
-            canvas: canvas,
-            context: context
-        }),
-        new Views.View.View({
-            model: buildingModels[7],
-            canvas: canvas,
-            context: context
-        }),
-        new Views.View.View({
-            model: buildingModels[8],
-            canvas: canvas,
-            context: context
-        }),
-        new Views.View.View({
-            model: buildingModels[9],
-            canvas: canvas,
-            context: context
         })
     ]
     
@@ -433,39 +381,9 @@ export function initialize(){
         new Controllers.BuildingController.BuildingController({
             model: buildingModels[1],
             view: buildingViews[1],
-        }),
-        new Controllers.BuildingController.BuildingController({
-            model: buildingModels[2],
-            view: buildingViews[2],
-        }),
-        new Controllers.BuildingController.BuildingController({
-            model: buildingModels[3],
-            view: buildingViews[3],
-        }),
-        new Controllers.BuildingController.BuildingController({
-            model: buildingModels[4],
-            view: buildingViews[4],
-        }),
-        new Controllers.BuildingController.BuildingController({
-            model: buildingModels[5],
-            view: buildingViews[5],
-        }),
-        new Controllers.BuildingController.BuildingController({
-            model: buildingModels[6],
-            view: buildingViews[6],
-        }),
-        new Controllers.BuildingController.BuildingController({
-            model: buildingModels[7],
-            view: buildingViews[7],
-        }),
-        new Controllers.BuildingController.BuildingController({
-            model: buildingModels[8],
-            view: buildingViews[8],
-        }),
-        new Controllers.BuildingController.BuildingController({
-            model: buildingModels[9],
-            view: buildingViews[9],
         })
     ]
+
+    createBuildings(numberOfBuldings, canvas, context, buildingUnits);
 
 }

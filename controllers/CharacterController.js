@@ -38,8 +38,8 @@ export class CharacterController extends Unit.UnitController {
                             y: position.y
                         },
                         dimensions:{
-                            width: this.model.dimensions.width, // TODO set dynamically
-                            height: this.model.dimensions.height
+                            width: this.model.dimensions.width/2, // TODO set dynamically
+                            height: this.model.dimensions.height/2
                         }
                     }
                 })
