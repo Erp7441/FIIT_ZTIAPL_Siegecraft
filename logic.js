@@ -201,7 +201,7 @@ export function animate(fps, state){
             enemyUnit.setCombatState(enemyUnit.isColliding(playerUnit));
             if(enemyUnit.getCombatState() && playerUnit.model.attacked === undefined){
 
-                // TODO implement stop when in combat
+                //enemyUnit.setMoved(undefined);
                 // Attacking player
                 playerUnit.model.attacked = setTimeout(() => {
                     enemyUnit.attack(playerUnit);
@@ -220,11 +220,14 @@ export function animate(fps, state){
         if(enemyUnit.getCombatState() === false){
             // Attack player buldings
             buildingUnits.forEach(buildingUnit => {
-                enemyUnit.setCombatState(enemyUnit.isColliding(buildingUnit));
+                
                 if(
                     buildingUnit.model.faction === 'player' &&
-                    enemyUnit.getCombatState() && buildingUnit.model.attacked === undefined
+                    enemyUnit.isColliding(buildingUnit) && buildingUnit.model.attacked === undefined
                 ){
+                    enemyUnit.setMoved(undefined);
+                    enemyUnit.setCombatState(true);
+
                     // Attacking player building
                     buildingUnit.model.attacked = setTimeout(() => {
                         enemyUnit.attack(buildingUnit);
@@ -244,15 +247,13 @@ export function animate(fps, state){
         
         if(enemyUnit.getCombatState() === false){
             // Move to nearest building
-            if(enemyUnit.model.moved === undefined){
-                enemyUnit.model.moved = setTimeout(() => {
+            if(enemyUnit.getMoved() === undefined){
+                enemyUnit.setMoved(setTimeout(() => {
                     enemyUnit.moveToBuilding(buildingUnits);
-                    enemyUnit.model.moved = undefined;
-                }, 1000/fps);
-            }       
+                }, 1000/fps));
+            }
+            enemyUnit.setCombatState(false);       
         }
-        
-
         index++;
     });
 
@@ -273,7 +274,7 @@ export function animate(fps, state){
         // Collision detection
         playerUnits.forEach(playerUnit => {
 
-            if(playerUnit.isColliding(buildingUnit) && buildingUnit.model.faction == 'neutral'){
+            if(playerUnit.isColliding(buildingUnit) && buildingUnit.model.faction === 'neutral'){
                 if(playerUnit.model.timeoutID === undefined){
                     playerUnit.model.timeoutID  = setTimeout(() => {
                         if(playerUnit.isColliding(buildingUnit)){
@@ -288,7 +289,7 @@ export function animate(fps, state){
         })
         enemyUnits.forEach(enemyUnit => {
 
-            if(enemyUnit.isColliding(buildingUnit) && buildingUnit.model.faction == 'neutral'){
+            if(enemyUnit.isColliding(buildingUnit) && buildingUnit.model.faction === 'neutral'){
                 if(enemyUnit.model.timeoutID === undefined){
                     enemyUnit.model.timeoutID  = setTimeout(() => {
                         if(enemyUnit.isColliding(buildingUnit)){
@@ -344,6 +345,11 @@ export function animate(fps, state){
         }
         
     });
+
+    enemyUnits.forEach(enemyUnit => {
+        console.log("Moved: "+enemyUnit.getMoved());
+        console.log("Combat: "+enemyUnit.getCombatState());
+    })
 
     //TODO vymysliet ako manipulovat hracove a enemakove units
     

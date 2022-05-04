@@ -22,5 +22,13 @@ export class UnitController extends GameObject.GameObjectController {
     setCombatState(state){
         this.model.combat = state;
     }
+
+    getMoved(){
+        return this.model.moved;
+    }
+
+    setMoved(state){
+        this.model.moved = state;
+    }
     
 }

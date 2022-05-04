@@ -38,9 +38,10 @@ export class GuardController extends Character.CharacterController {
             let buildingToMoveTo = this.detectBuilding(buildingUnits);
             if(buildingToMoveTo){
                 this.setbIsMoving(true);
-                this.move(buildingToMoveTo.model.position, this.model.combat);
+                this.move(buildingToMoveTo.model.position, this.getCombatState());
             }
-            return buildingToMoveTo;
+            this.setMoved(undefined);
+            // return buildingToMoveTo; //TODO remove this
         }
         return undefined;
     }
