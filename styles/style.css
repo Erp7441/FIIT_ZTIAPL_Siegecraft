@@ -26,6 +26,11 @@
     background-image: url('/images/game_over.png');
 }
 
+#victoryScreen{
+    visibility: hidden;
+    background-image: url('/images/victory.png');
+}
+
 #board{
     position: absolute;
     z-index: 0;
@@ -79,3 +84,13 @@
 .gameOverButtons:last-child{
     margin-top: 3.5rem;
 }
+
+.victoryButtons{
+    margin-bottom: 2rem;
+    width: 22.25rem;
+    height: 5.5rem;
+    position: relative;
+    top: 27.3rem;
+    left: 20rem;
+}
+

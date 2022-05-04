@@ -17,7 +17,7 @@ let playerUnits = new Array();
 let enemyUnits = new Array();
 let spawnPoints = new Array();
 let numberOfBuldings = 10; // Controls number of neural buildings spawned into the game
-let numberOfUnits = 1; // Controls number of
+let numberOfUnits = 5; // Controls number of units spawned into the game
 
 const mouse = {
     x: innerWidth / 2,
@@ -353,6 +353,7 @@ export function animate(fps, state){
     // TODO Aplikovat textury do hry
     // TODO Priama detekcia kolizie alebo vypocet vzdialenosti? Kde a preco?
     // TODO Vytvor gettery a settery
+    // TODO fixnut victory screen menu button bug
 
 }
 

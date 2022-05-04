@@ -55,7 +55,7 @@ function stateListener() {
             return;
         }
         else if (state.victory === true) {
-            //showVictoryScreen();
+            showVictory();
             return;
         }
         return setTimeout(listener, 250);
@@ -93,6 +93,13 @@ function showGameOver(){
     const gameOverScreen = document.getElementById('gameOverScreen');
     
     gameOverScreen.style.visibility = 'visible';
+    canvas.style.visibility = 'hidden';
+}
+
+function showVictory(){
+    const victoryScreen = document.getElementById('victoryScreen');
+    
+    victoryScreen.style.visibility = 'visible';
     canvas.style.visibility = 'hidden';
 }
 
