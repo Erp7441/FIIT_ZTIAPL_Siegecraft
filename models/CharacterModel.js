@@ -8,11 +8,11 @@ export class CharacterModel extends Unit.UnitModel {
             dimensions: dimensions,
             type: type,
             hp: hp,
-            velocity: velocity
+            velocity: velocity,
+            damage: damage
         });
         this.bIsMoving = bIsMoving || false;
         this.posX = 0; this.posY = 0;
-        this.damage = damage;
         this.faction = faction;
     }
 }

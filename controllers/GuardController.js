@@ -9,7 +9,11 @@ export class GuardController extends Character.CharacterController {
     }
     attack(enemy){
         if(enemy && enemy.model && enemy.model.hp && this.model && this.model.damage){
-            enemy.model.hp -= this.model.damage;
+            const coeficient =  Math.random() * (4 - 1) + 1;
+            enemy.model.hp -= this.model.damage * coeficient;
+        }
+        if(enemy.model.hp <= 0){
+            this.setCombatState(false);
         }
     }
 
@@ -34,7 +38,7 @@ export class GuardController extends Character.CharacterController {
             let buildingToMoveTo = this.detectBuilding(buildingUnits);
             if(buildingToMoveTo){
                 this.setbIsMoving(true);
-                this.move(buildingToMoveTo.model.position);
+                this.move(buildingToMoveTo.model.position, this.model.combat);
             }
             return buildingToMoveTo;
         }

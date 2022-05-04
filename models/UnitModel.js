@@ -1,7 +1,7 @@
 import * as GameObject from "./GameObjectModel.js"
 
 export class UnitModel extends GameObject.GameObjectModel{
-    constructor({texture, position, dimensions, type, hp, velocity}){
+    constructor({texture, position, dimensions, type, hp, velocity, damage}){
         super({
             texture: texture,
             position: position,
@@ -13,5 +13,7 @@ export class UnitModel extends GameObject.GameObjectModel{
         this.timeoutID = undefined;
         this.moved = undefined;
         this.velocity = velocity || {x: 3, y: 3};
+        this.damage = damage;
+        this.combat = false;
     }
 }
