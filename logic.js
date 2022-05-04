@@ -33,7 +33,7 @@ addEventListener('click', (event) => {
     // TODO remove console.log({mouseX: mouse.x, mouseY: mouse.y});
 
     playerUnits.forEach(playerUnit  => {
-        playerUnit.setbIsMoving(true); // TODO remove
+        playerUnit.setbIsMoving(true);
     })
 })
 
@@ -124,6 +124,7 @@ export function animate(fps, state){
         buildingUnits.forEach(buildingUnit => buildingUnit.view.drawTexture());
     }
 
+    // Player interactions
     let index = 0;
     playerUnits.forEach(playerUnit => {
 
@@ -185,10 +186,9 @@ export function animate(fps, state){
         index++;
     });
 
+    // Enemy interactions
     index = 0;
     enemyUnits.forEach(enemyUnit => {
-
-       // TODO create list of buildings being captured and dont move more then two units to that position
 
         if(enemyUnit.model.hp <= 0){
             playerUnits.splice(index, 1);
@@ -257,6 +257,7 @@ export function animate(fps, state){
         index++;
     });
 
+    // Buildings interactions
     buildingUnits.forEach(buildingUnit => {
 
         // Game end conditions
@@ -346,17 +347,13 @@ export function animate(fps, state){
         
     });
 
-    enemyUnits.forEach(enemyUnit => {
-        console.log("Moved: "+enemyUnit.getMoved());
-        console.log("Combat: "+enemyUnit.getCombatState());
-    })
+    // TODO Oznacovanie jednotiek playera
+    // TODO Create list of buildings being captured and dont move more then two units to that position
+    // TODO Obmedzit pocet jednotiek ktore mozu ist obsadit budovu
+    // TODO Aplikovat textury do hry
+    // TODO Priama detekcia kolizie alebo vypocet vzdialenosti? Kde a preco?
+    // TODO Vytvor gettery a settery
 
-    //TODO vymysliet ako manipulovat hracove a enemakove units
-    
-    //TODO priama detekcia kolizie alebo vypocet vzdialenosti? Kde a preco?
-
-
-    
 }
 
 export function initialize(){
