@@ -8,43 +8,26 @@ export class CharacterController extends Unit.UnitController {
         });
     }
     
-    update({position, velocity}){
-        this.model.position = {
-            x: position.x + velocity.x,
-            y: position.y + velocity.y
-        };
+    update(position){
+        this.model.position.x += position.x * this.model.velocity.x;
+        this.model.position.y += position.y * this.model.velocity.y;
     }
 
-    move(position, velocity){
+    move(position){
         if(this.getbIsMoving() === true){
     
             // Diffs
             let dX = position.x - this.model.position.x;
             let dY = position.y - this.model.position.y;
+            let dLenght = Math.hypot(dX, dY);
 
-            //TODO ked je dX a dY zaporne tak je pomalsi transition
-
-            if(dX < 0){
-                this.model.posX += (dX/velocity.x*2);
-            }
-            else{
-                this.model.posX += (dX/velocity.x);
-            }
-    
-            if(dY < 0){
-                this.model.posY += (dY/velocity.y*2);
-            }
-            else{
-                this.model.posY += (dY/velocity.y);
-            }
-
+            dX /= dLenght;
+            dY /= dLenght;
+            
             // Smoothly transitioning between positions
             
             // Updating position
-            this.update({
-                position: {x: this.model.posX, y: this.model.posY},
-                velocity: {x:50, y:50},
-            });
+            this.update({x: dX, y: dY});
             
             // Checking if we need to move in another frame
             this.setbIsMoving(
@@ -55,15 +38,13 @@ export class CharacterController extends Unit.UnitController {
                             y: position.y
                         },
                         dimensions:{
-                            width: 10, // TODO set dynamically
-                            height: 10
+                            width: this.model.dimensions.width, // TODO set dynamically
+                            height: this.model.dimensions.height
                         }
                     }
                 })
-            );            
+            );           
             
-            /*console.log("dX:" + Math.round(dX) + " dY:" + Math.round(dY)); // TODO remove
-            console.log("posX:" + Math.round(this.model.posX) + " posY:" + Math.round(this.model.posY));*/
         }
     }
         

@@ -4,7 +4,7 @@ export class GameObjectController{
         this.view = view;
         this.view.drawTexture();
     }
-    isColliding(collidingObject, offsetX, offsetY){
+    isColliding(collidingObject){
         // TODO implement offset for texture collision
         return (this.model.position.x < collidingObject.model.position.x + collidingObject.model.dimensions.width &&
                 this.model.position.x + this.model.dimensions.width > collidingObject.model.position.x &&

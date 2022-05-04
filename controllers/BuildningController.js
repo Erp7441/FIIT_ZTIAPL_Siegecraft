@@ -10,7 +10,7 @@ export class BuildingController extends Unit.UnitController {
             view: view
         });
     }
-    createUnit({position, dimensions, hp, armor}, canvas, context) {
+    createUnit({dimensions, hp, armor}, canvas, context) {
         let texture;
 
         if(this.model.faction === 'player'){
@@ -25,7 +25,10 @@ export class BuildingController extends Unit.UnitController {
 
         let model = new GuardModel.GuardModel({
             texture: texture,
-            position: position,
+            position: {
+                x: this.model.position.x + (Math.random() * 30),
+                y: this.model.position.y + (Math.random() * 30)
+            },
             dimensions: dimensions,
             hp: hp,
             armor: armor,

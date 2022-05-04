@@ -30,9 +30,9 @@ addEventListener('click', (event) => {
 
     console.log({mouseX: mouse.x, mouseY: mouse.y});
 
-    /*playerUnits.forEach(playerUnit  => {
+    playerUnits.forEach(playerUnit  => {
         playerUnit.setbIsMoving(true); // TODO remove
-    })*/
+    })
 })
 
 // -------------------------------- FUNCTIONS --------------------------------
@@ -88,27 +88,17 @@ export function animate(fps, state){
 
     let index = 0;
     playerUnits.forEach(playerUnit => {
-
+        console.log(playerUnit.model.velocity.x);
         if(playerUnit.model.hp <= 0){
             playerUnits.splice(index, 1);
         }
         
-        // Move to nearest building
-        /*if(playerUnit.model.moved === undefined){
-            playerUnit.model.moved = setTimeout(() => {
-                playerUnit.moveToBuilding(buildingUnits);
-                playerUnit.model.moved = undefined;
-            }, 1000/fps);
-        }*/ // TODO uncomment this
-
-        /*if(playerUnit.model.bIsMoving === true){
-            const velocity = {x:50, y:50}; //TODO set in object
+        if(playerUnit.model.bIsMoving === true){
             playerUnit.move({
                 x: mouse.x + generateRandom({min: 0, max: 20}),
                 y: mouse.y + generateRandom({min: 0, max: 20})
-            }, velocity); // TODO remove mouse and add something more sensible here
-        }*/
-
+            });
+        }
         enemyUnits.forEach(enemyUnit => {
             if(playerUnit.isColliding(enemyUnit) && enemyUnit.model.attacked === undefined) {
 
@@ -127,14 +117,9 @@ export function animate(fps, state){
 
     index = 0;
     enemyUnits.forEach(enemyUnit => {
-        // TODO move enemy units
 
-        //? Algorithm
-        // 1. Iterate buldings
-        // 2. Smallest distance from building
-        // 3. Move to the building
+       // TODO create list of buildings being captured and dont move more then two units to that position
 
-        
         if(enemyUnit.model.hp <= 0){
             playerUnits.splice(index, 1);
         }
@@ -193,6 +178,21 @@ export function animate(fps, state){
                 }        
             }
         })
+        enemyUnits.forEach(enemyUnit => {
+
+            if(enemyUnit.isColliding(buildingUnit) && buildingUnit.model.faction == 'neutral'){
+                if(enemyUnit.model.timeoutID === undefined){
+                    enemyUnit.model.timeoutID  = setTimeout(() => {
+                        if(enemyUnit.isColliding(buildingUnit)){
+                            buildingUnit.model.texture = enemyUnit.model.texture;
+                            buildingUnit.model.faction = 'enemy'
+                        }
+                        clearTimeout(enemyUnit.model.timeoutID);
+                        enemyUnit.model.timeoutID  = undefined;
+                    }, 5000);    
+                }        
+            }
+        })
         
 
         // Generating units
@@ -200,10 +200,6 @@ export function animate(fps, state){
             if(buildingUnit.model.timeoutID === undefined && playerUnits.length < 3){
                 buildingUnit.model.timeoutID = setTimeout(() => {
                     playerUnits.push(buildingUnit.createUnit({
-                        position: {
-                            x: buildingUnit.model.position.x + Math.random() * 30,
-                            y: buildingUnit.model.position.y + Math.random() * 30
-                        },
                         dimensions: {width: 50, height: 50},
                         hp:100,
                         armor: 100
@@ -256,7 +252,7 @@ export function initialize(){
     let buildingModels =[
         new Models.BuildingModel.BuildingModel({
             texture: 'green',
-            position: {x:0, y:0},
+            position: {x:50, y:50},
             dimensions: {width:50, height:50},
             type: 'Base',
             faction: 'player',
