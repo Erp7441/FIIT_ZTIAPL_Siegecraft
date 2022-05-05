@@ -29,8 +29,6 @@ const mouse = {
 addEventListener('click', (event) => {
     mouse.x = event.clientX;
     mouse.y = event.clientY;
-    
-    console.log(event.ctrlKey);
 
     // TODO remove console.log({mouseX: mouse.x, mouseY: mouse.y});
 
@@ -44,8 +42,8 @@ addEventListener('click', (event) => {
                         y: mouse.y
                     },
                     dimensions:{
-                        width: 10,
-                        height: 10
+                        width: 50,
+                        height: 50
                     }
                 }
             }
@@ -56,7 +54,7 @@ addEventListener('click', (event) => {
         }
         
     })
-})
+});
 
 // -------------------------------- FUNCTIONS --------------------------------
 
@@ -69,8 +67,28 @@ function generateRandom({min, max}){
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function createBuildings(numberOfBuildings, storage) {
+function generateCoordinates({min, max, storage, spacing}){
+    let random = {x: generateRandom({min:min, max:max}), y: generateRandom({min:min, max:max})};
 
+    if(storage){
+        storage.forEach(point => {
+            const distance = Math.hypot(random.x - point.x, random.y - point.y);
+            if(distance <= spacing){
+                random = generateCoordinates({
+                    min: min,
+                    max: max,
+                    storage: storage,
+                    spacing: spacing
+                });
+                return random;
+            }            
+        });
+        storage.push(random);
+    }
+    return random;
+}
+
+function createBuildings(numberOfBuildings, storage) {
     for(let i = 0; i < numberOfBuildings; i++) {
         const model = new Models.BuildingModel.BuildingModel({
             texture: 'grey',
@@ -91,40 +109,230 @@ function createBuildings(numberOfBuildings, storage) {
             model: model,
             canvas: canvas,
             context: context
-        })
+        });
 
         storage.push(
             new Controllers.BuildingController.BuildingController({
                 model: model,
                 view: view,
             })
-        )
+        );
     }
-
-    
-
-    
 }
 
-function generateCoordinates({min, max, storage, spacing}){
-    let random = {x: generateRandom({min:min, max:max}), y: generateRandom({min:min, max:max})};
-
-    if(storage){
-        storage.forEach(point => {
-            const distance = Math.hypot(random.x - point.x, random.y - point.y);
-            if(distance <= spacing){
-                random = generateCoordinates({
-                    min: min,
-                    max: max,
-                    storage: storage,
-                    spacing: spacing
-                });
-                return random;
-            }            
-        })
-        storage.push(random);
+function checkEndGame(buildingUnit, gameState, animationFrame){
+    if(buildingUnit.model.type === 'base' && buildingUnit.model.hp <= 0) {
+        if(buildingUnit.model.faction === 'player'){
+            gameState.gameOver = true;
+        }
+        else if(buildingUnit.model.faction === 'enemy'){
+            gameState.victory = true;
+        }
+        cancelAnimationFrame(animationFrame);
     }
-    return random;
+
+}
+
+function checkColision(collidingUnit, collidedUnit){
+    if(collidingUnit.isColliding(collidedUnit) && collidedUnit.model.faction === 'neutral'){
+        if(collidingUnit.model.timeoutID === undefined){
+            collidingUnit.model.timeoutID  = setTimeout(() => {
+                if(collidingUnit.isColliding(collidedUnit)){
+                    collidedUnit.model.texture = collidingUnit.model.texture;
+                    collidedUnit.model.faction = collidingUnit.model.faction;
+                }
+                clearTimeout(collidingUnit.model.timeoutID);
+                collidingUnit.model.timeoutID  = undefined;
+            }, 5000);    
+        }        
+    }
+}
+
+function generateUnits({buildingUnit, storages, canvas, context}){
+    let unitsStorage = undefined;
+    let promise = new Promise((resolve) => {
+        Object.values(storages).forEach((storageObject, index, array) => {
+            if(buildingUnit.model.faction === storageObject.faction){
+                unitsStorage = storageObject.storage;
+            }
+            if (index === array.length-1) resolve();
+        })
+    })
+
+    promise.then(() => {
+        if(unitsStorage !== undefined){
+            if(buildingUnit.model.timeoutID === undefined && unitsStorage.length < numberOfUnits && buildingUnit.model.faction !== 'neutral'){
+                buildingUnit.model.timeoutID = setTimeout(() => {
+                    unitsStorage.push(buildingUnit.createUnit({
+                        position: {
+                            x: buildingUnit.model.position.x + Math.random() * 30,
+                            y: buildingUnit.model.position.y + Math.random() * 30
+                        },
+                        dimensions: {width: 50, height: 50},
+                        hp:100,
+                        armor: 100
+                    }, canvas, context));
+                    clearTimeout(buildingUnit.model.timeoutID);
+                    buildingUnit.model.timeoutID = undefined;
+                }, 5000);
+            }
+        }
+    });
+}
+
+function attackUnits(unit, enemyUnits){
+    let index = 0;
+    enemyUnits.forEach(enemyUnit => {
+        unit.setCombatState(unit.isColliding(enemyUnit));
+        if(unit.getCombatState() && enemyUnit.model.attacked === undefined){
+
+            // Attacking enemy
+            enemyUnit.model.attacked = setTimeout(() => {
+                unit.attack(enemyUnit);
+                clearTimeout(enemyUnit.model.attacked);
+                enemyUnit.model.attacked = undefined;
+            }, 1000);
+
+            if(enemyUnit.model.hp <= 0) {
+                enemyUnits.splice(index, 1);
+            }
+        }
+        index++;
+    });
+}
+
+function attackBuildings(unit, buildingUnits){
+    if(unit.getCombatState() === false){
+        // Attack enemy buldings
+        buildingUnits.forEach(buildingUnit => {
+            
+            if(
+                (buildingUnit.model.faction !== unit.model.faction && buildingUnit.model.faction !== 'neutral')
+                && unit.isColliding(buildingUnit) && buildingUnit.model.attacked === undefined
+            ){
+                unit.setMoved(undefined);
+                unit.setCombatState(true);
+
+                // Attacking player building
+                buildingUnit.model.attacked = setTimeout(() => {
+                    unit.attack(buildingUnit);
+                    buildingUnit.defend(unit);
+                    buildingUnit.model.attacked = undefined;
+                    clearTimeout(buildingUnit.model.attacked);
+                }, 1000);
+
+                if(buildingUnit.model.hp <= 0 && buildingUnit.model.type !== 'base'){
+                    buildingUnit.model.hp = 100;
+                    buildingUnit.model.faction = unit.model.faction;
+                    buildingUnit.model.texture = unit.model.texture; // TODO remove this
+                }
+            }
+        });
+    }
+}
+
+function attackEnemy(unit, enemyUnits, buildingUnits){
+    // Attack enemyUnits
+    attackUnits(unit, enemyUnits);
+    // Attack buildingUnits
+    attackBuildings(unit, buildingUnits);
+}
+
+function moveUnit(unit, buildingUnits, fps){
+    if(unit.getCombatState() === false){
+        // Move to nearest building
+        if(unit.getMoved() === undefined){
+            unit.setMoved(setTimeout(() => {
+                unit.moveToBuilding(buildingUnits);
+            }, 1000/fps));
+        }
+        unit.setCombatState(false);       
+    }
+}
+
+function checkNumberOfUnits(units, max){
+    // TODO find better way to prevent from spawning more units than allowed
+    while(units.length > max){
+        units.splice(units.length - 1, 1);
+    }
+}
+
+function playerHandler(){
+
+    // Player interactions
+    let index = 0;
+    playerUnits.forEach(playerUnit => {
+
+        if(playerUnit.model.hp <= 0){
+            playerUnits.splice(index, 1);
+        }
+
+        // Attacking enemy
+        attackEnemy(playerUnit, enemyUnits, buildingUnits);
+
+        if(playerUnit.model.bIsMoving === true && playerUnit.getSelected() === true){
+            playerUnit.move({
+                x: mouse.x,
+                y: mouse.y
+            });
+        }
+        index++;
+    });
+}
+
+function enemyHandler(fps){
+    
+    // Enemy interactions
+    let index = 0;
+    enemyUnits.forEach(enemyUnit => {
+
+        if(enemyUnit.model.hp <= 0){
+            enemyUnits.splice(index, 1);
+        }
+        
+        attackEnemy(enemyUnit, playerUnits, buildingUnits);
+        moveUnit(enemyUnit, buildingUnits, fps);
+        
+        index++;
+    });
+}
+
+function buildingsHandler(gameState, animationFrame){
+    
+    // Buildings interactions
+    buildingUnits.forEach(buildingUnit => {
+
+        // Game end conditions
+        checkEndGame(buildingUnit, gameState, animationFrame);
+
+        // Collision detection
+        playerUnits.forEach(playerUnit => checkColision(playerUnit, buildingUnit));
+        enemyUnits.forEach(enemyUnit => checkColision(enemyUnit, buildingUnit));
+        
+
+        // Generating units
+        generateUnits({
+            buildingUnit: buildingUnit,
+            buildingUnits: buildingUnits,
+            storages: {
+                player: {
+                    faction: 'player',
+                    storage: playerUnits
+                },
+                enemy: {
+                    faction: 'enemy',
+                    storage: enemyUnits
+                }
+            },
+            canvas: canvas,
+            context: context
+        });
+
+        // Checking if we haven't spawned more units than allowed
+        checkNumberOfUnits(playerUnits, numberOfUnits);
+        checkNumberOfUnits(enemyUnits, numberOfUnits);
+        
+    });
 }
 
 export function animate(fps, state){
@@ -145,230 +353,10 @@ export function animate(fps, state){
         buildingUnits.forEach(buildingUnit => buildingUnit.view.drawTexture());
     }
 
-    // Player interactions
-    let index = 0;
-    playerUnits.forEach(playerUnit => {
+    playerHandler();
+    enemyHandler(fps);
+    buildingsHandler(state, frameID);    
 
-        if(playerUnit.model.hp <= 0){
-            playerUnits.splice(index, 1);
-        }
-
-        // Attack enemy
-        let enemyIndex = 0;
-        enemyUnits.forEach(enemyUnit => {
-            if(playerUnit.isColliding(enemyUnit) && enemyUnit.model.attacked === undefined) {
-
-                // Attacking enemy
-                enemyUnit.model.attacked = setTimeout(() => {
-                    playerUnit.attack(enemyUnit);
-                    clearTimeout(enemyUnit.model.attacked);
-                    enemyUnit.model.attacked = undefined;
-                }, 1000);
-
-                if(enemyUnit.model.hp <= 0) {
-                    enemyUnits.splice(enemyIndex, 1);
-                }
-                
-            }
-            enemyIndex++;
-        })
-
-        // Attack enemy buildings
-        buildingUnits.forEach(buildingUnit => {
-            if(
-                buildingUnit.model.faction === 'enemy' &&
-                playerUnit.isColliding(buildingUnit) && buildingUnit.model.attacked === undefined){
-
-                // Attacking enemy building
-                buildingUnit.model.attacked = setTimeout(() => {
-                    playerUnit.attack(buildingUnit);
-                    buildingUnit.defend(playerUnit);
-                    clearTimeout(buildingUnit.model.attacked);
-                    buildingUnit.model.attacked = undefined;
-                }, 1000);
-
-                if(buildingUnit.model.hp <= 0 && buildingUnit.model.type !== 'base'){
-                    buildingUnit.model.hp = 100;
-                    buildingUnit.model.faction = playerUnit.model.faction;
-                    buildingUnit.model.texture = playerUnit.model.texture; // TODO remove this
-                }
-                
-            }
-        })
-
-        
-        if(playerUnit.model.bIsMoving === true && playerUnit.getSelected() === true){
-            playerUnit.move({
-                x: mouse.x,
-                y: mouse.y
-            });
-        }
-
-        index++;
-    });
-
-    // Enemy interactions
-    index = 0;
-    enemyUnits.forEach(enemyUnit => {
-
-        if(enemyUnit.model.hp <= 0){
-            playerUnits.splice(index, 1);
-        }
-        
-        let playerIndex = 0;
-        
-        // Attack player
-        playerUnits.forEach(playerUnit => {
-            enemyUnit.setCombatState(enemyUnit.isColliding(playerUnit));
-            if(enemyUnit.getCombatState() && playerUnit.model.attacked === undefined){
-
-                //enemyUnit.setMoved(undefined);
-                // Attacking player
-                playerUnit.model.attacked = setTimeout(() => {
-                    enemyUnit.attack(playerUnit);
-                    clearTimeout(playerUnit.model.attacked);
-                    playerUnit.model.attacked = undefined;
-                }, 1000);
-
-                if(playerUnit.model.hp <= 0) {
-                    playerUnits.splice(playerIndex, 1);
-                }
-                
-            }
-            playerIndex++;
-        })
-
-        if(enemyUnit.getCombatState() === false){
-            // Attack player buldings
-            buildingUnits.forEach(buildingUnit => {
-                
-                if(
-                    buildingUnit.model.faction === 'player' &&
-                    enemyUnit.isColliding(buildingUnit) && buildingUnit.model.attacked === undefined
-                ){
-                    enemyUnit.setMoved(undefined);
-                    enemyUnit.setCombatState(true);
-
-                    // Attacking player building
-                    buildingUnit.model.attacked = setTimeout(() => {
-                        enemyUnit.attack(buildingUnit);
-                        buildingUnit.defend(enemyUnit);
-                        clearTimeout(buildingUnit.model.attacked);
-                        buildingUnit.model.attacked = undefined;
-                    }, 1000);
-
-                    if(buildingUnit.model.hp <= 0 && buildingUnit.model.type !== 'base'){
-                        buildingUnit.model.hp = 100;
-                        buildingUnit.model.faction = enemyUnit.model.faction;
-                        buildingUnit.model.texture = enemyUnit.model.texture; // TODO remove this
-                    }
-                }
-            })
-        }
-        
-        if(enemyUnit.getCombatState() === false){
-            // Move to nearest building
-            if(enemyUnit.getMoved() === undefined){
-                enemyUnit.setMoved(setTimeout(() => {
-                    enemyUnit.moveToBuilding(buildingUnits);
-                }, 1000/fps));
-            }
-            enemyUnit.setCombatState(false);       
-        }
-        index++;
-    });
-
-    // Buildings interactions
-    buildingUnits.forEach(buildingUnit => {
-
-        // Game end conditions
-        if(buildingUnit.model.type === 'base' && buildingUnit.model.hp <= 0) {
-
-            if(buildingUnit.model.faction === 'player'){
-                state.gameOver = true;
-            }
-            else if(buildingUnit.model.faction === 'enemy'){
-                state.victory = true;
-            }
-            cancelAnimationFrame(frameID);
-        }
-
-        // Collision detection
-        playerUnits.forEach(playerUnit => {
-
-            if(playerUnit.isColliding(buildingUnit) && buildingUnit.model.faction === 'neutral'){
-                if(playerUnit.model.timeoutID === undefined){
-                    playerUnit.model.timeoutID  = setTimeout(() => {
-                        if(playerUnit.isColliding(buildingUnit)){
-                            buildingUnit.model.texture = playerUnit.model.texture;
-                            buildingUnit.model.faction = 'player'
-                        }
-                        clearTimeout(playerUnit.model.timeoutID);
-                        playerUnit.model.timeoutID  = undefined;
-                    }, 5000);    
-                }        
-            }
-        })
-        enemyUnits.forEach(enemyUnit => {
-
-            if(enemyUnit.isColliding(buildingUnit) && buildingUnit.model.faction === 'neutral'){
-                if(enemyUnit.model.timeoutID === undefined){
-                    enemyUnit.model.timeoutID  = setTimeout(() => {
-                        if(enemyUnit.isColliding(buildingUnit)){
-                            buildingUnit.model.texture = enemyUnit.model.texture;
-                            buildingUnit.model.faction = 'enemy'
-                        }
-                        clearTimeout(enemyUnit.model.timeoutID);
-                        enemyUnit.model.timeoutID  = undefined;
-                    }, 5000);    
-                }        
-            }
-        })
-        
-
-        // Generating units
-        if(buildingUnit.model.faction === 'player'){
-            if(buildingUnit.model.timeoutID === undefined && playerUnits.length < numberOfUnits){
-                buildingUnit.model.timeoutID = setTimeout(() => {
-                    playerUnits.push(buildingUnit.createUnit({
-                        dimensions: {width: 50, height: 50},
-                        hp:100,
-                        armor: 100
-                    }, canvas, context));
-                    clearTimeout(buildingUnit.model.timeoutID);
-                    buildingUnit.model.timeoutID = undefined;
-                }, 5000); 
-            }
-        }
-        else if(buildingUnit.model.faction === 'enemy'){
-            if(buildingUnit.model.timeoutID === undefined && enemyUnits.length < numberOfUnits){
-                buildingUnit.model.timeoutID = setTimeout(() => {
-                    enemyUnits.push(buildingUnit.createUnit({
-                        position: {
-                            x: buildingUnit.model.position.x + Math.random() * 30,
-                            y: buildingUnit.model.position.y + Math.random() * 30
-                        },
-                        dimensions: {width: 50, height: 50},
-                        hp:100,
-                        armor: 100
-                    }, canvas, context));
-                    clearTimeout(buildingUnit.model.timeoutID);
-                    buildingUnit.model.timeoutID = undefined;
-                }, 5000);
-            }
-        }
-
-        // TODO find better way to prevent from spawning more units than allowed
-        while(playerUnits.length > numberOfUnits){
-            playerUnits.splice(playerUnits.length - 1, 1);
-        }
-        while(enemyUnits.length > numberOfUnits){
-            enemyUnits.splice(enemyUnits.length - 1, 1);
-        }
-        
-    });
-
-    // TODO Oznacovanie jednotiek playera
     // TODO Create list of buildings being captured and dont move more then two units to that position
     // TODO Obmedzit pocet jednotiek ktore mozu ist obsadit budovu
     // TODO Aplikovat textury do hry
