@@ -56,4 +56,11 @@ export class CharacterController extends Unit.UnitController {
     }
 
     getbIsMoving(){ return this.model.bIsMoving; }
+
+    setSelected(state){
+        // TODO Check type
+        this.model.selected = state;
+    }
+
+    getSelected(){ return this.model.selected; }
 }

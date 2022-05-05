@@ -29,11 +29,32 @@ const mouse = {
 addEventListener('click', (event) => {
     mouse.x = event.clientX;
     mouse.y = event.clientY;
+    
+    console.log(event.ctrlKey);
 
     // TODO remove console.log({mouseX: mouse.x, mouseY: mouse.y});
 
     playerUnits.forEach(playerUnit  => {
-        playerUnit.setbIsMoving(true);
+
+        if(event.ctrlKey){
+            const mouseObject = { 
+                model:{
+                    position:{
+                        x: mouse.x,
+                        y: mouse.y
+                    },
+                    dimensions:{
+                        width: 10,
+                        height: 10
+                    }
+                }
+            }
+            playerUnit.setSelected(playerUnit.isColliding(mouseObject));
+        }
+        else{
+            playerUnit.setbIsMoving(true);
+        }
+        
     })
 })
 
@@ -176,7 +197,7 @@ export function animate(fps, state){
         })
 
         
-        if(playerUnit.model.bIsMoving === true){
+        if(playerUnit.model.bIsMoving === true && playerUnit.getSelected() === true){
             playerUnit.move({
                 x: mouse.x,
                 y: mouse.y

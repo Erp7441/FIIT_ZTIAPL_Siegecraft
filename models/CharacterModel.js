@@ -14,5 +14,6 @@ export class CharacterModel extends Unit.UnitModel {
         this.bIsMoving = bIsMoving || false;
         this.posX = 0; this.posY = 0;
         this.faction = faction;
+        this.selected = false;
     }
 }
