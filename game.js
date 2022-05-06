@@ -43,7 +43,10 @@ function playGame(){
 
     music(false); // Stops music on playGame // TODO change music on playGame
     Logic.initialize();
-    Logic.animate(60, state);
+    Logic.animate({
+        fps: 60,
+        state:state
+    });
     stateListener();
 }
 

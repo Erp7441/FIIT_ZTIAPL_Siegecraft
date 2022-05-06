@@ -16,8 +16,8 @@ let buildingUnits = new Array();
 let playerUnits = new Array();
 let enemyUnits = new Array();
 let spawnPoints = new Array();
-let numberOfBuldings = 10; // Controls number of neural buildings spawned into the game
-let numberOfUnits = 5; // Controls number of units spawned into the game
+let numberOfBuildings = 10; // Controls number of neural buildings spawned into the game
+let numberOfUnits = 7; // Controls number of units spawned into the game
 
 const mouse = {
     x: innerWidth / 2,
@@ -88,7 +88,7 @@ function generateCoordinates({min, max, storage, spacing}){
     return random;
 }
 
-function createBuildings(numberOfBuildings, storage) {
+function createBuildings({numberOfBuildings, storage}) {
     for(let i = 0; i < numberOfBuildings; i++) {
         const model = new Models.BuildingModel.BuildingModel({
             texture: 'grey',
@@ -120,7 +120,7 @@ function createBuildings(numberOfBuildings, storage) {
     }
 }
 
-function checkEndGame(buildingUnit, gameState, animationFrame){
+function checkEndGame({buildingUnit, gameState, animationFrameToStop}){
     if(buildingUnit.model.type === 'base' && buildingUnit.model.hp <= 0) {
         if(buildingUnit.model.faction === 'player'){
             gameState.gameOver = true;
@@ -128,12 +128,12 @@ function checkEndGame(buildingUnit, gameState, animationFrame){
         else if(buildingUnit.model.faction === 'enemy'){
             gameState.victory = true;
         }
-        cancelAnimationFrame(animationFrame);
+        cancelAnimationFrame(animationFrameToStop);
     }
 
 }
 
-function checkColision(collidingUnit, collidedUnit){
+function checkColision({collidingUnit, collidedUnit}){
     if(collidingUnit.isColliding(collidedUnit) && collidedUnit.model.faction === 'neutral'){
         if(collidingUnit.model.timeoutID === undefined){
             collidingUnit.model.timeoutID  = setTimeout(() => {
@@ -180,7 +180,7 @@ function generateUnits({buildingUnit, storages, canvas, context}){
     });
 }
 
-function attackUnits(unit, enemyUnits){
+function attackUnits({unit, enemyUnits}){
     let index = 0;
     enemyUnits.forEach(enemyUnit => {
         unit.setCombatState(unit.isColliding(enemyUnit));
@@ -201,7 +201,7 @@ function attackUnits(unit, enemyUnits){
     });
 }
 
-function attackBuildings(unit, buildingUnits){
+function attackBuildings({unit, buildingUnits}){
     if(unit.getCombatState() === false){
         // Attack enemy buldings
         buildingUnits.forEach(buildingUnit => {
@@ -231,14 +231,20 @@ function attackBuildings(unit, buildingUnits){
     }
 }
 
-function attackEnemy(unit, enemyUnits, buildingUnits){
+function attackEnemy({unit, enemyUnits, buildingUnits}){
     // Attack enemyUnits
-    attackUnits(unit, enemyUnits);
+    attackUnits({
+        unit: unit,
+        enemyUnits: enemyUnits
+    });
     // Attack buildingUnits
-    attackBuildings(unit, buildingUnits);
+    attackBuildings({
+        unit: unit,
+        buildingUnits: buildingUnits
+    });
 }
 
-function moveUnit(unit, buildingUnits, fps){
+function moveUnit({unit, buildingUnits, fps}){
     if(unit.getCombatState() === false){
         // Move to nearest building
         if(unit.getMoved() === undefined){
@@ -250,7 +256,7 @@ function moveUnit(unit, buildingUnits, fps){
     }
 }
 
-function checkNumberOfUnits(units, max){
+function checkNumberOfUnits({units, max}){
     // TODO find better way to prevent from spawning more units than allowed
     while(units.length > max){
         units.splice(units.length - 1, 1);
@@ -268,7 +274,11 @@ function playerHandler(){
         }
 
         // Attacking enemy
-        attackEnemy(playerUnit, enemyUnits, buildingUnits);
+        attackEnemy({
+            unit: playerUnit,
+            enemyUnits: enemyUnits,
+            buildingUnits: buildingUnits
+        });
 
         if(playerUnit.model.bIsMoving === true && playerUnit.getSelected() === true){
             playerUnit.move({
@@ -280,7 +290,7 @@ function playerHandler(){
     });
 }
 
-function enemyHandler(fps){
+function enemyHandler({fps}){
     
     // Enemy interactions
     let index = 0;
@@ -290,30 +300,48 @@ function enemyHandler(fps){
             enemyUnits.splice(index, 1);
         }
         
-        attackEnemy(enemyUnit, playerUnits, buildingUnits);
-        moveUnit(enemyUnit, buildingUnits, fps);
+        attackEnemy({
+            unit: enemyUnit,
+            enemyUnits: playerUnits,
+            buildingUnits: buildingUnits
+        });
+
+        moveUnit({
+            unit: enemyUnit,
+            buildingUnits: buildingUnits,
+            fps: fps
+        });
         
         index++;
     });
 }
 
-function buildingsHandler(gameState, animationFrame){
+function buildingsHandler({state, animationFrame}){
     
     // Buildings interactions
     buildingUnits.forEach(buildingUnit => {
 
         // Game end conditions
-        checkEndGame(buildingUnit, gameState, animationFrame);
+        checkEndGame({
+            buildingUnit: buildingUnit,
+            gameState: state,
+            animationFrameToStop: animationFrame
+        });
 
         // Collision detection
-        playerUnits.forEach(playerUnit => checkColision(playerUnit, buildingUnit));
-        enemyUnits.forEach(enemyUnit => checkColision(enemyUnit, buildingUnit));
+        playerUnits.forEach(playerUnit => checkColision({
+            collidingUnit: playerUnit,
+            collidedUnit: buildingUnit
+        }));
+        enemyUnits.forEach(enemyUnit => checkColision({
+            collidingUnit: enemyUnit,
+            collidedUnit: buildingUnit
+        }));
         
 
         // Generating units
         generateUnits({
             buildingUnit: buildingUnit,
-            buildingUnits: buildingUnits,
             storages: {
                 player: {
                     faction: 'player',
@@ -329,14 +357,20 @@ function buildingsHandler(gameState, animationFrame){
         });
 
         // Checking if we haven't spawned more units than allowed
-        checkNumberOfUnits(playerUnits, numberOfUnits);
-        checkNumberOfUnits(enemyUnits, numberOfUnits);
+        checkNumberOfUnits({
+            units: playerUnits,
+            max: numberOfUnits
+        });
+        checkNumberOfUnits({
+            units: enemyUnits,
+            max: numberOfUnits
+        });
         
     });
 }
 
-export function animate(fps, state){
-    let frameID = requestAnimationFrame(() => animate(fps, state));
+export function animate({fps, state}){
+    let frameID = requestAnimationFrame(() => animate({fps: fps, state: state}));
     // Calculating time elapsed since last loop
     now = Date.now();
     elapsed = now - then;
@@ -354,8 +388,15 @@ export function animate(fps, state){
     }
 
     playerHandler();
-    enemyHandler(fps);
-    buildingsHandler(state, frameID);    
+
+    enemyHandler({
+        fps: fps
+    });
+
+    buildingsHandler({
+        state: state,
+        animationFrame: frameID
+    });    
 
     // TODO Create list of buildings being captured and dont move more then two units to that position
     // TODO Obmedzit pocet jednotiek ktore mozu ist obsadit budovu
@@ -423,6 +464,9 @@ export function initialize(){
         })
     ]
 
-    createBuildings(numberOfBuldings, buildingUnits);
+    createBuildings({
+        numberOfBuildings: numberOfBuildings,
+        storage: buildingUnits
+    });
 
 }
