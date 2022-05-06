@@ -29,7 +29,7 @@ const mouse = {
 addEventListener('click', (event) => {
     mouse.x = event.clientX;
     mouse.y = event.clientY;
-    
+
     playerUnits.forEach(playerUnit  => {
 
         if(event.ctrlKey){
@@ -86,8 +86,46 @@ function generateCoordinates({min, max, storage, spacing}){
     return random;
 }
 
+function generateID({length}){
+    return parseInt(Math.ceil(Math.random() * Date.now()).toPrecision(length).toString().replace(".", ""));
+}
+
+function generateConnection({storage, exclude}){
+    return new Promise((resolve, reject) => {
+        if(!storage || storage.length === 0){
+            reject(undefined);
+        }
+
+        let index = generateRandom({min: 0, max:storage.length-1});
+        for(let ID in exclude){
+            if(storage[index].getID() === ID){
+                index = generateRandom({min: 0, max:storage.length-1});
+            }
+        }
+        resolve(storage[index].getID());
+    });
+}
+
+function generateConnections({storage, exclude, numberOfConnections}){
+    let connections = new Array();
+    let index = 0;
+    while(index < numberOfConnections) {
+        generateConnection({
+            storage: storage,
+            exclude: exclude
+        }).then(value => {
+            if(!connections.includes(value)){
+                connections.push(value);
+                index++;
+            }
+        });      
+    }
+    return connections;
+}
+
 function createBuildings({numberOfBuildings, storage}) {
     for(let i = 0; i < numberOfBuildings; i++) {
+
         const model = new Models.BuildingModel.BuildingModel({
             texture: 'grey',
             position: generateCoordinates({
@@ -100,7 +138,10 @@ function createBuildings({numberOfBuildings, storage}) {
             type: 'Building',
             faction: 'neutral',
             hp: 100,
-            damage: 15
+            damage: 15,
+            ID: generateID({
+                length: 16
+            })
         });
     
         const view = new Views.View.View({
@@ -396,8 +437,11 @@ export function animate({fps, state}){
         animationFrame: frameID
     });    
 
+    console.log(buildingUnits);
+
     // TODO Create list of buildings being captured and dont move more then two units to that position
     // TODO Aplikovat textury do hry
+    // TODO link buildings to one another so any faction cannot immediately capture enemy base
     // TODO fixnut victory screen menu button bug
 
 }
@@ -422,7 +466,8 @@ export function initialize(){
             type: 'base',
             faction: 'player',
             hp: 100,
-            damage: 30
+            damage: 30,
+            ID: 1
         }),
         new Models.BuildingModel.BuildingModel({
             texture: 'red',
@@ -431,7 +476,8 @@ export function initialize(){
             type: 'base',
             faction: 'enemy',
             hp: 100,
-            damage: 30
+            damage: 30,
+            ID: 2
         })
     ]
     
@@ -459,9 +505,20 @@ export function initialize(){
         })
     ]
 
-    createBuildings({
-        numberOfBuildings: numberOfBuildings,
-        storage: buildingUnits
-    });
+    new Promise((resolve) => {
+        createBuildings({
+            numberOfBuildings: numberOfBuildings,
+            storage: buildingUnits
+        });
+        resolve()
+    }).then(() => {
+        buildingUnits.forEach(buildingUnit => {
+            buildingUnit.setConnections(generateConnections({
+                storage: buildingUnits,
+                exclude: buildingUnit.getID(),
+                numberOfConnections: 3
+            }))
+        });
+    })
 
 }

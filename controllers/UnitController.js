@@ -15,6 +15,10 @@ export class UnitController extends GameObject.GameObjectController {
         }
     }
 
+    getAttacked(){
+        return this.model.attacked;
+    }
+
     getUnitType(){
         return this.model.type;
     }
@@ -49,6 +53,11 @@ export class UnitController extends GameObject.GameObjectController {
 
     getFaction(){
         return this.model.faction
+    }
+
+    setAttacked(attacked){
+        // TODO Check type
+        this.model.attacked = attacked;
     }
 
     setUnitType(type){

@@ -16,5 +16,6 @@ export class UnitModel extends GameObject.GameObjectModel{
         this.damage = damage;
         this.combat = false;
         this.faction = faction;
+        this.attacked = undefined;
     }
 }

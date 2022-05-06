@@ -37,7 +37,7 @@ export class GuardController extends Character.CharacterController {
         if(buildingUnits.length > 0) {
             let buildingToMoveTo = this.detectBuilding(buildingUnits);
             if(buildingToMoveTo){
-                this.setisMoving(true);
+                this.setIsMoving(true);
                 this.move(buildingToMoveTo.model.position, this.getCombat());
             }
             this.setMoved(undefined);
@@ -46,17 +46,8 @@ export class GuardController extends Character.CharacterController {
         return undefined;
     }
 
-    getAttacked(){
-        return this.model.attacked;
-    }
-
     getArmor(){
         return this.model.armor;
-    }
-
-    setAttacked(attacked){
-        // TODO Check type
-        this.model.attacked = attacked;
     }
 
     setArmor(armor){

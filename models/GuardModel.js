@@ -16,6 +16,5 @@ export class GuardModel extends Character.CharacterModel{
             velocity: velocity
         });
         this.armor = armor;
-        this.attacked = undefined;
     }
 }

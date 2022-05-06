@@ -32,7 +32,7 @@ export class CharacterController extends Unit.UnitController {
             this.update({x: dX, y: dY});
             
             // Checking if we need to move in another frame
-            this.setisMoving(
+            this.setIsMoving(
                 !this.isColliding({
                     model: {
                         position:{

@@ -36,11 +36,17 @@ function playGame(){
     state.victory = false;
 
     music(false); // Stops music on playGame // TODO change music on playGame
-    Logic.initialize();
-    Logic.animate({
+
+    let init = new Promise((resolve) => {
+        Logic.initialize();
+        resolve()
+    })
+
+    init.then(() => Logic.animate({
         fps: 60,
         state:state
-    });
+    }));
+
     stateListener();
 }
 

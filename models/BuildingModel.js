@@ -1,7 +1,7 @@
 import * as Unit from "./UnitModel.js";
 
 export class BuildingModel extends Unit.UnitModel{
-    constructor({texture, position, dimensions, type, faction, hp, velocity}){
+    constructor({texture, position, dimensions, type, faction, hp, velocity, ID}){
         super({
             texture:texture,
             position:position,
@@ -12,5 +12,7 @@ export class BuildingModel extends Unit.UnitModel{
             faction:faction          
         });
         this.isBeingCaptured = false;
+        this.ID = ID;
+        this.connections = new Array();
     }
 }

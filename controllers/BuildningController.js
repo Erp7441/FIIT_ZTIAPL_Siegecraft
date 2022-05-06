@@ -52,8 +52,25 @@ export class BuildingController extends Unit.UnitController {
         return this.model.isBeingCaptured;
     }
 
+    getID(){
+        return this.model.ID;
+    }
+
+    getConnections(){
+        return this.model.connections;
+    }
+
     setIsBeingCaptured(bState){
         // TODO Check type
         this.model.isBeingCaptured = bState;
+    }
+
+    setID(ID){
+        // TODO Check type
+        this.model.ID = ID;
+    }
+
+    setConnections(connections){
+        this.model.connections = connections;
     }
 }
