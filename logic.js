@@ -108,15 +108,13 @@ function generateConnection({storage, exclude}){
 
 function generateConnections({storage, exclude, numberOfConnections}){
     let connections = new Array();
-    let index = 0;
-    while(index < numberOfConnections) {
+    for(let index = 0; index < numberOfConnections; index++) {
         generateConnection({
             storage: storage,
             exclude: exclude
         }).then(value => {
             if(!connections.includes(value)){
                 connections.push(value);
-                index++;
             }
         });      
     }
