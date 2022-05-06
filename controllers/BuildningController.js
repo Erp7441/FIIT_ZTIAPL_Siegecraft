@@ -47,4 +47,13 @@ export class BuildingController extends Unit.UnitController {
             view: view,
         });
     }
+
+    getIsBeingCaptured(){
+        return this.model.isBeingCaptured;
+    }
+
+    setIsBeingCaptured(bState){
+        // TODO Check type
+        this.model.isBeingCaptured = bState;
+    }
 }

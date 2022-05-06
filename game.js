@@ -1,9 +1,3 @@
-/*
-    1. Vytvorit mapu
-        ?Ako vykreslit texturu?
-        TODO Pridat base mapu
-*/
-
 // -------------------------------- IMPORTS --------------------------------
 
 import * as Logic from './logic.js';

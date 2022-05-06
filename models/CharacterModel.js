@@ -1,7 +1,7 @@
 import * as Unit from './UnitModel.js';
 
 export class CharacterModel extends Unit.UnitModel {
-    constructor({texture, position, dimensions, type, hp, bIsMoving, damage, faction, velocity}){
+    constructor({texture, position, dimensions, type, hp, isMoving, damage, faction, velocity}){
         super({
             texture: texture,
             position: position,
@@ -9,11 +9,10 @@ export class CharacterModel extends Unit.UnitModel {
             type: type,
             hp: hp,
             velocity: velocity,
-            damage: damage
+            damage: damage,
+            faction: faction
         });
-        this.bIsMoving = bIsMoving || false;
-        this.posX = 0; this.posY = 0;
-        this.faction = faction;
+        this.isMoving = isMoving || false;
         this.selected = false;
     }
 }

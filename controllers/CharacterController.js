@@ -14,7 +14,7 @@ export class CharacterController extends Unit.UnitController {
     }
 
     move(position, bCombat){
-        if(this.getbIsMoving() === true){
+        if(this.getIsMoving() === true){
     
             if(bCombat) { return; }
 
@@ -32,7 +32,7 @@ export class CharacterController extends Unit.UnitController {
             this.update({x: dX, y: dY});
             
             // Checking if we need to move in another frame
-            this.setbIsMoving(
+            this.setisMoving(
                 !this.isColliding({
                     model: {
                         position:{
@@ -49,18 +49,23 @@ export class CharacterController extends Unit.UnitController {
             
         }
     }
+
+    getIsMoving(){
+        return this.model.isMoving;
+    }
+    
+    getSelected(){
+        return this.model.selected;
+    }
         
-    setbIsMoving(bool){
+    setIsMoving(bState){
         // TODO Check type
-        this.model.bIsMoving = bool;
+        this.model.isMoving = bState;
     }
 
-    getbIsMoving(){ return this.model.bIsMoving; }
-
-    setSelected(state){
+    setSelected(bState){
         // TODO Check type
-        this.model.selected = state;
+        this.model.selected = bState;
     }
 
-    getSelected(){ return this.model.selected; }
 }

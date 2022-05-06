@@ -8,8 +8,9 @@ export class BuildingModel extends Unit.UnitModel{
             dimensions:dimensions,
             type:type,
             hp:hp,
-            velocity:velocity           
+            velocity:velocity, 
+            faction:faction          
         });
-        this.faction = faction;
+        this.isBeingCaptured = false;
     }
 }

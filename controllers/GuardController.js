@@ -13,7 +13,7 @@ export class GuardController extends Character.CharacterController {
             enemy.model.hp -= this.model.damage * coeficient;
         }
         if(enemy.model.hp <= 0){
-            this.setCombatState(false);
+            this.setCombat(false);
         }
     }
 
@@ -37,12 +37,30 @@ export class GuardController extends Character.CharacterController {
         if(buildingUnits.length > 0) {
             let buildingToMoveTo = this.detectBuilding(buildingUnits);
             if(buildingToMoveTo){
-                this.setbIsMoving(true);
-                this.move(buildingToMoveTo.model.position, this.getCombatState());
+                this.setisMoving(true);
+                this.move(buildingToMoveTo.model.position, this.getCombat());
             }
             this.setMoved(undefined);
             // return buildingToMoveTo; //TODO remove this
         }
         return undefined;
+    }
+
+    getAttacked(){
+        return this.model.attacked;
+    }
+
+    getArmor(){
+        return this.model.armor;
+    }
+
+    setAttacked(attacked){
+        // TODO Check type
+        this.model.attacked = attacked;
+    }
+
+    setArmor(armor){
+        // TODO Check type
+        this.model.armor = armor;
     }
 }

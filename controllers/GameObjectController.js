@@ -16,4 +16,35 @@ export class GameObjectController{
     getDistance(object) {
         return Math.hypot(object.model.position.x - this.model.position.x, object.model.position.y - this.model.position.y);
     }
+
+    getTexture(){
+        return this.model.texture;
+    }
+
+    getPosition(){
+        return this.model.position;
+    }
+
+    getDimensions(){
+        return this.model.dimensions;
+    }
+
+    setTexture(texture){
+        // TODO Check type
+        this.model.texture = texture;
+    }
+
+    setPosition(position){
+        // TODO Check type
+        this.model.position = position;
+    }
+
+    setDimensions(dimensions){
+        // TODO Check type
+        this.model.dimensions = dimensions;
+    }
+
+    drawTexture(){
+        this.view.drawTexture()
+    }
 }
