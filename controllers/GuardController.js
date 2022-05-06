@@ -17,13 +17,29 @@ export class GuardController extends Character.CharacterController {
         }
     }
 
+    checkAvailableBuildings(buldingUnits){
+        buldingUnits.forEach(buildingUnit => {
+            if(buildingUnit.getFaction() === this.getFaction()){
+                buildingUnit.getConnections().forEach(connection => {
+                    if(!this.getAvailableBuildings().includes(connection)){
+                        this.getAvailableBuildings().push(connection);
+                    }
+                })
+            }
+        })
+    }
+
     //TODO prepojit zakladne, pridat nejaku premennu ktora bude odkazovat na dalsiu zakladnu ALEBO radius ktory by urcil tieto spojenia a urcil by kam sa treba pohnut
     detectBuilding(buildingUnits){
+
+        this.checkAvailableBuildings(buildingUnits);
+        
         let buildingToMoveTo = undefined;
         let distance = Infinity;
         buildingUnits.forEach(buildingUnit => {
             if(
-                buildingUnit.model.faction !== this.model.faction &&
+                this.getAvailableBuildings().includes(buildingUnit.getID()) &&
+                buildingUnit.getFaction() !== this.getFaction() &&
                 this.getDistance(buildingUnit) < distance
             ){
                 distance = this.getDistance(buildingUnit);
@@ -54,4 +70,21 @@ export class GuardController extends Character.CharacterController {
         // TODO Check type
         this.model.armor = armor;
     }
+
+    getAvailableBuildings(){
+        return this.model.availableBuildings;
+    }
+
+    setAvailableBuildings(array){
+        this.model.availableBuildings = array;
+    }
+
+    getCanCaptureBase(){
+        return this.model.canCaptureBase;
+    }
+
+    setCanCaptureBase(bState){
+        this.model.canCaptureBase = bState;
+    }
+    
 }

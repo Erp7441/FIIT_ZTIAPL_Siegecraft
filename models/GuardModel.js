@@ -16,5 +16,7 @@ export class GuardModel extends Character.CharacterModel{
             velocity: velocity
         });
         this.armor = armor;
+        this.availableBuildings = new Array();
+        this.canCaptureBase = false;
     }
 }

@@ -40,8 +40,8 @@ addEventListener('click', (event) => {
                         y: mouse.y
                     },
                     dimensions:{
-                        width: 50,
-                        height: 50
+                        width: 100,
+                        height: 100
                     }
                 }
             }
@@ -170,51 +170,42 @@ function checkEndGame({buildingUnit, gameState, animationFrameToStop}){
 
 }
 
-function checkColision({collidingUnit, collidedUnit}){
-    if(collidingUnit.isColliding(collidedUnit) && collidedUnit.getFaction() === 'neutral'){
-        if(collidingUnit.getTimeoutID() === undefined){
-            collidingUnit.setTimeoutID(setTimeout(() => {
-                if(collidingUnit.isColliding(collidedUnit)){
-                    collidedUnit.setTexture(collidingUnit.getTexture()); // TODO remove or adapt
-                    collidedUnit.setFaction(collidingUnit.getFaction());
+function captureBuiding({attackingUnit, capturedUnit}){
+    if(attackingUnit.isColliding(capturedUnit) && capturedUnit.getFaction() === 'neutral'){
+        if(attackingUnit.getTimeoutID() === undefined){
+            attackingUnit.setTimeoutID(setTimeout(() => {
+                if(attackingUnit.isColliding(capturedUnit)){
+                    capturedUnit.setTexture(attackingUnit.getTexture()); // TODO remove or adapt
+                    capturedUnit.setFaction(attackingUnit.getFaction());
                 }
-                clearTimeout(collidingUnit.getTimeoutID());
-                collidingUnit.setTimeoutID(undefined);
+                clearTimeout(attackingUnit.getTimeoutID());
+                attackingUnit.setTimeoutID(undefined);
             }, 5000));
         }        
     }
 }
 
-function generateUnits({buildingUnit, storages, canvas, context}){
-    let unitsStorage = undefined;
-    let promise = new Promise((resolve) => {
-        Object.values(storages).forEach((storageObject, index, array) => {
-            if(buildingUnit.getFaction() === storageObject.faction){
-                unitsStorage = storageObject.storage;
-            }
-            if (index === array.length-1) resolve();
-        })
-    })
+function generateUnits({buildingUnit, playerUnits, enemyUnits, canvas, context}){
 
-    promise.then(() => {
-        if(unitsStorage !== undefined){
-            if(buildingUnit.getTimeoutID() === undefined && unitsStorage.length < numberOfUnits && buildingUnit.getFaction() !== 'neutral'){
-                buildingUnit.setTimeoutID(setTimeout(() => {
-                    unitsStorage.push(buildingUnit.createUnit({
-                        position: {
-                            x: buildingUnit.getPosition().x + Math.random() * 30,
-                            y: buildingUnit.getPosition().y + Math.random() * 30
-                        },
-                        dimensions: {width: 50, height: 50},
-                        hp:100,
-                        armor: 100
-                    }, canvas, context));
-                    clearTimeout(buildingUnit.getTimeoutID());
-                    buildingUnit.setTimeoutID(undefined);
-                }, 5000));
+
+    if(buildingUnit.getTimeoutID() === undefined && buildingUnit.getFaction() !== 'neutral'){
+        buildingUnit.setTimeoutID(setTimeout(() => {
+            let unitsStorage = (buildingUnit.getFaction() === 'player' ?  playerUnits : enemyUnits);
+            if(unitsStorage.length < numberOfUnits){
+                unitsStorage.push(buildingUnit.createUnit({
+                    position: {
+                        x: buildingUnit.getPosition().x + Math.random() * 30,
+                        y: buildingUnit.getPosition().y + Math.random() * 30
+                    },
+                    dimensions: {width: 50, height: 50},
+                    hp:100,
+                    armor: 100
+                }, canvas, context));
             }
-        }
-    });
+            clearTimeout(buildingUnit.getTimeoutID());
+            buildingUnit.setTimeoutID(undefined);
+        }, 5000));
+    }
 }
 
 function attackUnits({unit, enemyUnits}){
@@ -247,21 +238,27 @@ function attackBuildings({unit, buildingUnits}){
                 (buildingUnit.getFaction() !== unit.getFaction() && buildingUnit.getFaction() !== 'neutral')
                 && unit.isColliding(buildingUnit) && buildingUnit.getAttacked() === undefined
             ){
-                unit.setMoved(undefined);
-                unit.setCombat(true);
 
-                // Attacking player building
-                buildingUnit.setAttacked(setTimeout(() => {
-                    unit.attack(buildingUnit);
-                    buildingUnit.defend(unit);
-                    clearTimeout(buildingUnit.getAttacked());
-                    buildingUnit.setAttacked(undefined);
-                }, 1000));
+                if(
+                    (buildingUnit.getUnitType() === 'base' && unit.getCanCaptureBase() === true)||
+                    buildingUnit.getUnitType() !== 'base'
+                ){
+                    unit.setMoved(undefined);
+                    unit.setCombat(true);
 
-                if(buildingUnit.getHp() <= 0 && buildingUnit.getUnitType() !== 'base'){
-                    buildingUnit.setHp(100);
-                    buildingUnit.setFaction(unit.getFaction());
-                    buildingUnit.setTexture(unit.getTexture()); // TODO remove or adapt
+                    // Attacking player building
+                    buildingUnit.setAttacked(setTimeout(() => {
+                        unit.attack(buildingUnit);
+                        buildingUnit.defend(unit);
+                        clearTimeout(buildingUnit.getAttacked());
+                        buildingUnit.setAttacked(undefined);
+                    }, 1000));
+
+                    if(buildingUnit.getHp() <= 0 && buildingUnit.getUnitType() !== 'base'){
+                        buildingUnit.setHp(100);
+                        buildingUnit.setFaction(unit.getFaction());
+                        buildingUnit.setTexture(unit.getTexture()); // TODO remove or adapt
+                    }
                 }
             }
         });
@@ -353,11 +350,30 @@ function enemyHandler({fps}){
     });
 }
 
+function setCaptureState({playerCaptureState, enemyCaptureState}){
+    playerUnits.forEach(playerUnit => {
+        playerUnit.setCanCaptureBase(playerCaptureState);
+    });
+    enemyUnits.forEach(enemyUnit => {
+        enemyUnit.setCanCaptureBase(enemyCaptureState);
+    })
+}
+
 function buildingsHandler({state, animationFrame}){
     
+
+    let numberOfPlayerBuildings = 0; // TODO write on screen
+    let numberOfEnemyBuildings = 0; // TODO write on screen
     // Buildings interactions
     buildingUnits.forEach(buildingUnit => {
 
+        if(buildingUnit.getFaction() === 'player'){
+            numberOfPlayerBuildings++;
+        }
+        else if(buildingUnit.getFaction() === 'enemy'){
+            numberOfEnemyBuildings++;
+        }
+        
         // Game end conditions
         checkEndGame({
             buildingUnit: buildingUnit,
@@ -366,29 +382,21 @@ function buildingsHandler({state, animationFrame}){
         });
 
         // Collision detection
-        playerUnits.forEach(playerUnit => checkColision({
-            collidingUnit: playerUnit,
-            collidedUnit: buildingUnit
+        playerUnits.forEach(playerUnit => captureBuiding({
+            attackingUnit: playerUnit,
+            capturedUnit: buildingUnit
         }));
-        enemyUnits.forEach(enemyUnit => checkColision({
-            collidingUnit: enemyUnit,
-            collidedUnit: buildingUnit
+        enemyUnits.forEach(enemyUnit => captureBuiding({
+            attackingUnit: enemyUnit,
+            capturedUnit: buildingUnit
         }));
         
 
         // Generating units
         generateUnits({
             buildingUnit: buildingUnit,
-            storages: {
-                player: {
-                    faction: 'player',
-                    storage: playerUnits
-                },
-                enemy: {
-                    faction: 'enemy',
-                    storage: enemyUnits
-                }
-            },
+            playerUnits: playerUnits,
+            enemyUnits: enemyUnits,
             canvas: canvas,
             context: context
         });
@@ -404,6 +412,26 @@ function buildingsHandler({state, animationFrame}){
         });
         
     });
+
+    if(numberOfPlayerBuildings > numberOfEnemyBuildings){
+        setCaptureState({
+            playerCaptureState: true,
+            enemyCaptureState: false
+        });
+    }
+    else if(numberOfPlayerBuildings < numberOfEnemyBuildings){
+        setCaptureState({
+            playerCaptureState: false,
+            enemyCaptureState: true
+        });
+    }
+    else{
+        setCaptureState({
+            playerCaptureState: false,
+            enemyCaptureState: false
+        });
+    }
+    
 }
 
 export function animate({fps, state}){
@@ -435,11 +463,9 @@ export function animate({fps, state}){
         animationFrame: frameID
     });    
 
-    console.log(buildingUnits);
+    console.log({playerUnits: playerUnits, enemyUnits: enemyUnits, buildingUnits: buildingUnits});
 
-    // TODO Create list of buildings being captured and dont move more then two units to that position
     // TODO Aplikovat textury do hry
-    // TODO link buildings to one another so any faction cannot immediately capture enemy base
     // TODO fixnut victory screen menu button bug
 
 }
