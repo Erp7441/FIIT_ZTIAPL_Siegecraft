@@ -10,7 +10,7 @@ export class BuildingController extends Unit.UnitController {
             view: view
         });
     }
-    createUnit({dimensions, hp, armor, texture}, canvas, context) {
+    createUnit({dimensions, hp, armor, damage, texture}, canvas, context) {
         
         const generateRandom = ({min, max}) => {
             return Math.floor(Math.random() * (max - min)) + min;
@@ -29,7 +29,7 @@ export class BuildingController extends Unit.UnitController {
             dimensions: dimensions,
             hp: hp,
             armor: armor,
-            damage: 10,
+            damage: damage,
             faction: this.model.faction
         });
     

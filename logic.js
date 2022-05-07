@@ -1,7 +1,32 @@
 import * as Models from './models/Models.js';
 import * as Views from './views/Views.js'; 
 import * as Controllers from './controllers/Controllers.js';
+import * as Map from './maps.js';
 
+const tiles = loadTextures('images/textures/PNG/Default size/Tile/scifiTile_XX.png',12);
+const enviroment = loadTextures('images/textures/PNG/Default size/Environment/scifiEnvironment_XX.png', 20);
+const numberOfBuildings = 20; // Controls number of neural buildings spawned into the game
+const numberOfUnits = 1; // Controls number of units spawned into the game
+
+
+const UnitPrototype = {
+    dimensions: {
+        width:64,
+        height:64
+    },
+    hp: 100,
+    armor: 100,
+    damage: 10
+}
+
+const BuildingPrototype = {
+    dimensions: {
+        width:64,
+        height:64
+    },
+    hp: 100,
+    damage: 30
+}
 
 // -------------------------------- VARIABLES --------------------------------
 
@@ -16,8 +41,8 @@ let buildingUnits = new Array();
 let playerUnits = new Array();
 let enemyUnits = new Array();
 let spawnPoints = new Array();
-let numberOfBuildings = 20; // Controls number of neural buildings spawned into the game
-let numberOfUnits = 7; // Controls number of units spawned into the game
+let map = undefined;
+let props = undefined;
 
 const mouse = {
     x: innerWidth / 2,
@@ -61,24 +86,26 @@ addEventListener('click', (event) => {
 function clearScreen() {
     context.fillStyle = 'white';
     context.fillRect(0, 0, canvas.width, canvas.height);
-    //context.drawImage()
-    drawMap(canvas, context)
+    drawMap(canvas, context, tiles, map);
+    // drawMap(canvas, context, enviroment, props); // TODO complete this
 }
 
-function drawMap(canvas, context){
+function loadTextures(path, numberOfTextures){
     let textures = new Array();
 
-    for(let i = 1; i <= 41; i++){
+    let file = path.split("XX");
+    for(let i = 1; i <= numberOfTextures; i++){
         const image = new Image();
-        image.src = 'images/textures/PNG/Default size/Tile/scifiTile_'+(i<10 ? '0' : '')+i+'.png';
+        image.src = file[0]+(i<10 ? '0' : '')+i+file[1];
         textures.push(image);
     }
-    
+    return textures;
+}
 
-    for(let y = 0; y < canvas.height; y+=64) {
-        for(let x = 0; x < canvas.width; x+=64) {
-            
-            context.drawImage(textures[40], x, y, 64, 64);
+function drawMap(canvas, context, textures, map){
+    for(let x = 0; x < canvas.width; x+=64) {
+        for(let y = 0; y < canvas.height; y+=64) {
+            context.drawImage(textures[map[y/64][x/64]-1], x, y, 64, 64);
         }
     }
 }
@@ -157,11 +184,11 @@ function createBuildings({numberOfBuildings, storage}) {
                 storage: spawnPoints,
                 spacing: 150
             }),
-            dimensions: {width:50, height:50},
+            dimensions: BuildingPrototype.dimensions,
             type: 'Building',
             faction: 'neutral',
-            hp: 100,
-            damage: 15,
+            hp: BuildingPrototype.hp,
+            damage: BuildingPrototype.damage,
             ID: generateID({
                 length: 16
             })
@@ -210,8 +237,6 @@ function captureBuiding({attackingUnit, capturedUnit}){
 }
 
 function generateUnits({buildingUnit, playerUnits, enemyUnits, canvas, context}){
-
-
     if(buildingUnit.getTimeoutID() === undefined && buildingUnit.getFaction() !== 'neutral'){
         buildingUnit.setTimeoutID(setTimeout(() => {
             let unitsStorage = (buildingUnit.getFaction() === 'player' ?  playerUnits : enemyUnits);
@@ -225,9 +250,10 @@ function generateUnits({buildingUnit, playerUnits, enemyUnits, canvas, context})
                         x: buildingUnit.getPosition().x,
                         y: buildingUnit.getPosition().y
                     },
-                    dimensions: {width: 64, height: 64},
-                    hp:100,
-                    armor: 100
+                    dimensions: UnitPrototype.dimensions,
+                    hp: UnitPrototype.hp,
+                    armor: UnitPrototype.armor,
+                    damage: UnitPrototype.damage
                 }, canvas, context));
             }
             clearTimeout(buildingUnit.getTimeoutID());
@@ -242,6 +268,7 @@ function attackUnits({unit, enemyUnits}){
         unit.setCombat(unit.isColliding(enemyUnit));
         if(unit.getCombat() && enemyUnit.getAttacked() === undefined){
 
+            unit.setMoved(undefined);
             // Attacking enemy
             enemyUnit.setAttacked(setTimeout(() => {
                 unit.attack(enemyUnit);
@@ -488,10 +515,11 @@ export function animate({fps, state}){
     buildingsHandler({
         state: state,
         animationFrame: frameID
-    });    
+    });
 
     //console.log({playerUnits: playerUnits, enemyUnits: enemyUnits, buildingUnits: buildingUnits}); // TODO remove
 
+    // TODO fix combat
     // TODO Aplikovat textury do hry
     // TODO fixnut victory screen menu button bug
 
@@ -508,6 +536,20 @@ export function initialize(){
     playerUnits = new Array();
     enemyUnits = new Array();
     spawnPoints = new Array();
+
+    /*map = Map.maps[generateRandom({
+        min: 0,
+        max: Map.maps.length-1
+    })]*/
+    /*props = Map.props[generateRandom({
+        min: 0,
+        max: Map.props.length-1
+    })]*/
+
+    map = Map.maps[0] // TODO replace
+    props = Map.props[0]
+
+
 
     let buildingModels =[
         new Models.BuildingModel.BuildingModel({

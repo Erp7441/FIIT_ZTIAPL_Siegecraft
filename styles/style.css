@@ -1,3 +1,16 @@
+body{
+    /*background-image:url('../images/textures/PNG/Default\ size/Tile/scifiTile_11.png');*/
+    background-color: black;
+}
+
+canvas, .menu{
+    box-shadow: 10px 10px 36px 10px rgba(36,52,134,1);
+    -webkit-box-shadow: 10px 10px 36px 10px rgba(36,52,134,1);
+    -moz-box-shadow: 10px 10px 36px 10px rgba(36,52,134,1);
+    border-radius: 10px;
+    border: 2px solid black;
+}
+
 .menu{
     width: 960px;
     height: 960px;

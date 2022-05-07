@@ -4,10 +4,7 @@ export class GuardModel extends Character.CharacterModel{
     constructor({texture, position, dimensions, hp, armor, damage, faction, velocity}){
         super({
             texture: texture,
-            position: {
-                x: position.x,
-                y: position.y
-            },
+            position: position,
             dimensions: dimensions,
             type: "Guard",
             hp: hp,
