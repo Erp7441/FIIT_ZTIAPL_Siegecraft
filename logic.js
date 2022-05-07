@@ -16,7 +16,7 @@ let buildingUnits = new Array();
 let playerUnits = new Array();
 let enemyUnits = new Array();
 let spawnPoints = new Array();
-let numberOfBuildings = 10; // Controls number of neural buildings spawned into the game
+let numberOfBuildings = 20; // Controls number of neural buildings spawned into the game
 let numberOfUnits = 7; // Controls number of units spawned into the game
 
 const mouse = {
@@ -29,6 +29,8 @@ const mouse = {
 addEventListener('click', (event) => {
     mouse.x = event.clientX;
     mouse.y = event.clientY;
+
+    console.log({Message: "Mouse", X: mouse.x, Y: mouse.y});
 
     playerUnits.forEach(playerUnit  => {
 
@@ -59,6 +61,26 @@ addEventListener('click', (event) => {
 function clearScreen() {
     context.fillStyle = 'white';
     context.fillRect(0, 0, canvas.width, canvas.height);
+    //context.drawImage()
+    drawMap(canvas, context)
+}
+
+function drawMap(canvas, context){
+    let textures = new Array();
+
+    for(let i = 1; i <= 41; i++){
+        const image = new Image();
+        image.src = 'images/textures/PNG/Default size/Tile/scifiTile_'+(i<10 ? '0' : '')+i+'.png';
+        textures.push(image);
+    }
+    
+
+    for(let y = 0; y < canvas.height; y+=64) {
+        for(let x = 0; x < canvas.width; x+=64) {
+            
+            context.drawImage(textures[40], x, y, 64, 64);
+        }
+    }
 }
 
 function generateRandom({min, max}){
@@ -125,10 +147,13 @@ function createBuildings({numberOfBuildings, storage}) {
     for(let i = 0; i < numberOfBuildings; i++) {
 
         const model = new Models.BuildingModel.BuildingModel({
-            texture: 'grey',
+            texture: 'images/textures/PNG/Default size/Structure/scifiStructure_0'+generateRandom({
+                min: 2,
+                max: 7
+            })+'.png',
             position: generateCoordinates({
                 min: 0,
-                max: 600,
+                max: 800,
                 storage: spawnPoints,
                 spacing: 150
             }),
@@ -175,7 +200,6 @@ function captureBuiding({attackingUnit, capturedUnit}){
         if(attackingUnit.getTimeoutID() === undefined){
             attackingUnit.setTimeoutID(setTimeout(() => {
                 if(attackingUnit.isColliding(capturedUnit)){
-                    capturedUnit.setTexture(attackingUnit.getTexture()); // TODO remove or adapt
                     capturedUnit.setFaction(attackingUnit.getFaction());
                 }
                 clearTimeout(attackingUnit.getTimeoutID());
@@ -193,11 +217,15 @@ function generateUnits({buildingUnit, playerUnits, enemyUnits, canvas, context})
             let unitsStorage = (buildingUnit.getFaction() === 'player' ?  playerUnits : enemyUnits);
             if(unitsStorage.length < numberOfUnits){
                 unitsStorage.push(buildingUnit.createUnit({
+                    texture: 'images/textures/PNG/Default size/Unit/scifiUnit_0'+generateRandom({
+                        min: 1,
+                        max: 5
+                    })+'.png',
                     position: {
-                        x: buildingUnit.getPosition().x + Math.random() * 30,
-                        y: buildingUnit.getPosition().y + Math.random() * 30
+                        x: buildingUnit.getPosition().x,
+                        y: buildingUnit.getPosition().y
                     },
-                    dimensions: {width: 50, height: 50},
+                    dimensions: {width: 64, height: 64},
                     hp:100,
                     armor: 100
                 }, canvas, context));
@@ -257,7 +285,6 @@ function attackBuildings({unit, buildingUnits}){
                     if(buildingUnit.getHp() <= 0 && buildingUnit.getUnitType() !== 'base'){
                         buildingUnit.setHp(100);
                         buildingUnit.setFaction(unit.getFaction());
-                        buildingUnit.setTexture(unit.getTexture()); // TODO remove or adapt
                     }
                 }
             }
@@ -463,7 +490,7 @@ export function animate({fps, state}){
         animationFrame: frameID
     });    
 
-    console.log({playerUnits: playerUnits, enemyUnits: enemyUnits, buildingUnits: buildingUnits});
+    //console.log({playerUnits: playerUnits, enemyUnits: enemyUnits, buildingUnits: buildingUnits}); // TODO remove
 
     // TODO Aplikovat textury do hry
     // TODO fixnut victory screen menu button bug
@@ -484,8 +511,8 @@ export function initialize(){
 
     let buildingModels =[
         new Models.BuildingModel.BuildingModel({
-            texture: 'green',
-            position: {x:50, y:50},
+            texture: 'images/textures/PNG/Default size/Structure/scifiStructure_01.png',
+            position: {x:10, y:10},
             dimensions: {width:50, height:50},
             type: 'base',
             faction: 'player',
@@ -494,8 +521,8 @@ export function initialize(){
             ID: 1
         }),
         new Models.BuildingModel.BuildingModel({
-            texture: 'red',
-            position: {x:600, y:600},
+            texture: 'images/textures/PNG/Default size/Structure/scifiStructure_01.png',
+            position: {x:900, y:900},
             dimensions: {width:50, height:50},
             type: 'base',
             faction: 'enemy',

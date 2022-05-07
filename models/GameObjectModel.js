@@ -1,6 +1,5 @@
 export class GameObjectModel{
     constructor({texture, position, dimensions}){
-        this.texture = texture;
         this.position = {
             x: position.x,
             y: position.y
@@ -9,5 +8,7 @@ export class GameObjectModel{
             width: dimensions.width,
             height: dimensions.height
         };
+        this.texture = new Image();
+        this.texture.src = texture;
     }
 }

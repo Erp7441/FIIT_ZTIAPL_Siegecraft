@@ -10,24 +10,21 @@ export class BuildingController extends Unit.UnitController {
             view: view
         });
     }
-    createUnit({dimensions, hp, armor}, canvas, context) {
-        let texture;
-
-        if(this.model.faction === 'player'){
-            texture = 'green';
-        }
-        else if(this.model.faction === 'enemy'){
-            texture = 'red';
-        }
-        else if(this.model.faction === 'neutral'){
-            texture = 'gray';
+    createUnit({dimensions, hp, armor, texture}, canvas, context) {
+        
+        const generateRandom = ({min, max}) => {
+            return Math.floor(Math.random() * (max - min)) + min;
         }
 
+        // TODO vymysliet lepsi offset
+        let offsetX= this.getPosition().x < canvas.width/2 ? generateRandom({min: 20, max: 40}) : generateRandom({min: -40, max: -20});
+        let offsetY= this.getPosition().y < canvas.height/2 ? generateRandom({min: 20, max: 40}) : generateRandom({min: -40, max: -20});
+        
         let model = new GuardModel.GuardModel({
             texture: texture,
             position: {
-                x: this.model.position.x + (Math.random() * 30),
-                y: this.model.position.y + (Math.random() * 30)
+                x: this.model.position.x + offsetX,
+                y: this.model.position.y + offsetY
             },
             dimensions: dimensions,
             hp: hp,
