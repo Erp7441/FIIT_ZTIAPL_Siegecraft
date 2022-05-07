@@ -41,8 +41,8 @@ let buildingUnits = new Array();
 let playerUnits = new Array();
 let enemyUnits = new Array();
 let spawnPoints = new Array();
-let map = undefined;
-let props = undefined;
+let map = undefined; // TODO complete this
+let props = undefined; // TODO complete this
 
 const mouse = {
     x: innerWidth / 2,
@@ -87,7 +87,7 @@ function clearScreen() {
     context.fillStyle = 'white';
     context.fillRect(0, 0, canvas.width, canvas.height);
     drawMap(canvas, context, tiles, map);
-    // drawMap(canvas, context, enviroment, props); // TODO complete this
+    drawMap(canvas, context, enviroment, props, false); // TODO complete this
 }
 
 function loadTextures(path, numberOfTextures){
@@ -102,10 +102,16 @@ function loadTextures(path, numberOfTextures){
     return textures;
 }
 
-function drawMap(canvas, context, textures, map){
+function drawMap(canvas, context, textures, map, debug){
     for(let x = 0; x < canvas.width; x+=64) {
         for(let y = 0; y < canvas.height; y+=64) {
-            context.drawImage(textures[map[y/64][x/64]-1], x, y, 64, 64);
+            if(map[y/64][x/64] !== 0){
+                context.drawImage(textures[map[y/64][x/64]-1], x, y, 64, 64);
+            }
+            if(debug){ // TODO remove this debug log
+                context.fillText('y: ' + (y/64) + ' x:' + (x/64+1), x+16, y-16, 64, 64);
+            }
+            
         }
     }
 }
@@ -517,10 +523,6 @@ export function animate({fps, state}){
         animationFrame: frameID
     });
 
-    //console.log({playerUnits: playerUnits, enemyUnits: enemyUnits, buildingUnits: buildingUnits}); // TODO remove
-
-    // TODO fix combat
-    // TODO Aplikovat textury do hry
     // TODO fixnut victory screen menu button bug
 
 }
@@ -546,8 +548,8 @@ export function initialize(){
         max: Map.props.length-1
     })]*/
 
-    map = Map.maps[0] // TODO replace
-    props = Map.props[0]
+    map = Map.maps[0] // TODO complete this
+    props = Map.props[0] // TODO complete this
 
 
 
