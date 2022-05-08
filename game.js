@@ -11,7 +11,7 @@ canvas.height = 960;
 const playButton = document.getElementById('playButton');
 const settingsButton = document.getElementById('settingsButton');
 const controlsButton = document.getElementById('controlsButton');
-const retryButtons = document.getElementsByClassName('retryButton');
+const retryButton = document.getElementById('retryButton');
 const backButtons = document.getElementsByClassName('backButtons');
 const quitButtons = document.getElementsByClassName('quitButtons');
 const soundButton = document.getElementById('soundButton');
@@ -26,9 +26,11 @@ let state = { gameOver: false, victory: false };
 function playGame(){
     const mainMenu = document.getElementById('mainMenu');
     const gameOverScreen = document.getElementById('gameOverScreen');
+    const victoryScreen = document.getElementById('victoryScreen');
     
     mainMenu.style.visibility = 'hidden';
     gameOverScreen.style.visibility = 'hidden';
+    victoryScreen.style.visibility = 'hidden';
     canvas.style.visibility = 'visible';
     counters.style.visibility = 'visible';
 
@@ -87,11 +89,13 @@ function showMainMenu(){
     const settingsMenu = document.getElementById('settingsMenu');
     const controlsMenu = document.getElementById('controlsMenu');
     const gameOverScreen = document.getElementById('gameOverScreen');
+    const victoryScreen = document.getElementById('victoryScreen');
 
     mainMenu.style.visibility = 'visible';
     settingsMenu.style.visibility = 'hidden';
     controlsMenu.style.visibility = 'hidden';
     gameOverScreen.style.visibility = 'hidden';
+    victoryScreen.style.visibility = 'hidden';
     counters.style.visibility = 'hidden';
 }
 
@@ -182,6 +186,7 @@ settingsButton.addEventListener('click', showSettings);
 controlsButton.addEventListener('click', showControls);
 soundButton.addEventListener('click', sound);
 musicButton.addEventListener('click', () => music());
+retryButton.addEventListener('click', playGame);
 
 for (const button of buttons) {
     button.addEventListener('click', () => playFx('sounds/combat/metal4.wav'));
@@ -193,8 +198,4 @@ for (const button of quitButtons){
 
 for (const button of backButtons) {
     button.addEventListener('click', showMainMenu);
-}
-
-for (const button of retryButtons) {
-    button.addEventListener('click', playGame);
 }

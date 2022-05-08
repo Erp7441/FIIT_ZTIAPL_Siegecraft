@@ -26,10 +26,10 @@ const BuildingPrototype = {
     damage: 30
 }
 
-let difficulty = 2;
+let difficulty = 0; // TODO set difficulty in menu
 const DifficultyPrototype = [
     {
-        time: 1801,
+        time: 1,
         numberOfBuildings: 5,
         numberOfPlayerUnits: 6,
         numberOfEnemyUnits: 3
@@ -585,7 +585,7 @@ export function animate({fps, state}){
     })
 
     if(!timerID){ updateTime(state); }
-    if(DifficultyPrototype[difficulty].time <= 0){
+    if(time <= 0){
         cancelAnimationFrame(frameID);
         if(numberOfPlayerBuildings < numberOfEnemyBuildings){
             state.gameOver = true;
@@ -594,9 +594,6 @@ export function animate({fps, state}){
             state.victory = true;
         }
     }
-
-    // TODO fixnut victory screen menu button bug
-
 }
 
 export function initialize(){
