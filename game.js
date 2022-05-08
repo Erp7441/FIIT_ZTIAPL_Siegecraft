@@ -20,6 +20,7 @@ const buttons = document.getElementsByClassName('buttons');
 const counters = document.getElementById('counters');
 
 let state = { gameOver: false, victory: false };
+let fxVolume = 0.5;
 
 // -------------------------------- FUNCTIONS --------------------------------
 
@@ -126,17 +127,18 @@ function quitGame(){
     location.replace("about:blank"); // If window.close() fails then redirect to blank page
 }
 
-function sound(){
-    if(localStorage.getItem('bPlayFx') === 'true'){
-        localStorage.setItem('bPlayFx', false);
+function setVolumeDynamically(volume){
+    if(volume > 0){
+        volume -= 0.1;
+        volume = volume.toFixed(1);
     }
     else{
-        localStorage.setItem('bPlayFx', true);
+        volume = 1;
     }
+    return volume;
 }
 
 function music(override){
-    // TODO use .volume attribue to set volume gradually
 
     const musicElement = document.getElementById('musicElement');
 
@@ -173,7 +175,7 @@ function playFx(path){
     try {
         const fx = new Audio(path);
         fx.load();
-        fx.volume = 0.5; // TODO set volume dynamically
+        fx.volume = fxVolume;
         fx.play();
     } catch (error) {
         console.log(error);
@@ -188,9 +190,6 @@ function generateRandom({min, max}){
 // ----------------------------- EVENT LISTENERS ----------------------------
 
 window.addEventListener('load', () => {
-    if(localStorage.getItem('bPlayFx') === null){
-        localStorage.setItem('bPlayFx', true);
-    }
     if(localStorage.getItem('bPlayMusic') === null){
         localStorage.setItem('bPlayMusic', true);
         
@@ -203,9 +202,16 @@ window.addEventListener('load', () => {
 playButton.addEventListener('click', playGame);
 settingsButton.addEventListener('click', showSettings);
 controlsButton.addEventListener('click', showControls);
-soundButton.addEventListener('click', sound);
-musicButton.addEventListener('click', () => music());
 retryButton.addEventListener('click', playGame);
+
+soundButton.addEventListener('click', () => {
+    fxVolume = setVolumeDynamically(fxVolume);
+});
+
+musicButton.addEventListener('click', () => {
+    const musicElement = document.getElementById('musicElement');
+    musicElement.volume = setVolumeDynamically(musicElement.volume);
+});
 
 for (const button of buttons) {
     button.addEventListener('click', () => playFx('sounds/combat/metal4.wav'));
