@@ -56,52 +56,82 @@ export class UnitController extends GameObject.GameObjectController {
     }
 
     setAttacked(attacked){
-        // TODO Check type
+        if(attacked && typeof(attacked) !== "number") {
+            console.error("Wrong type detected for variable \"attacked\" expected number\nvalue: " + attacked + ", type: " + typeof(attacked));
+            return; 
+        }
         this.model.attacked = attacked;
     }
 
     setUnitType(type){
-        // TODO Check type
+        if(type && typeof(type) !== "string") {
+            console.error("Wrong type detected for variable \"type\" expected string\nvalue: " + type + ", type: " + typeof(type));
+            return; 
+        }
         this.model.type = type;
     }
 
     setHp(hp){
-        // TODO Check type
+        if(hp && typeof(hp) !== "number") {
+            console.error("Wrong type detected for variable \"hp\" expected number\nvalue: " + hp + ", type: " + typeof(hp));
+            return; 
+        }
         this.model.hp = hp;
     }
 
-    setCombat(bState){
-        // TODO Check type
-        this.model.combat = bState;
+    setCombat(state){
+        if(state && typeof(state) !== "boolean") {
+            console.error("Wrong type detected for variable \"state\" expected boolean\nvalue: " + state + ", type: " + typeof(state));
+            return; 
+        }
+        this.model.combat = state;
     }
 
     setMoved(state){
-        // TODO Check type
+        if(state && typeof(state) !== "number") {
+            console.error("Wrong type detected for variable \"state\" expected number\nvalue: " + state + ", type: " + typeof(state));
+            return; 
+        }
         this.model.moved = state;
     }
 
-    setIsMoving(bState){
-        // TODO Check type
-        this.model.isMoving = bState;
+    setIsMoving(state){
+        if(state && typeof(state) !== "boolean") {
+            console.error("Wrong type detected for variable \"state\" expected boolean\nvalue: " + state + ", type: " + typeof(state));
+            return; 
+        }
+        this.model.isMoving = state;
     }
 
     setTimeoutID(ID){
-        // TODO Check type
+        if(ID && typeof(ID) !== "number") {
+            console.error("Wrong type detected for variable \"ID\" expected number\nvalue: " + ID + ", type: " + typeof(ID));
+            return; 
+        }
         this.model.timeoutID = ID;
     }
 
     setVelocity(velocity){
-        // TODO Check type
+        if(velocity && typeof(velocity) !== "number") {
+            console.error("Wrong type detected for variable \"velocity\" expected number\nvalue: " + velocity + ", type: " + typeof(velocity));
+            return; 
+        }
         this.model.velocity = velocity;
     }
 
     setDamage(damage){
-        // TODO Check type
+        if(damage && typeof(damage) !== "number") {
+            console.error("Wrong type detected for variable \"damage\" expected number\nvalue: " + damage + ", type: " + typeof(damage));
+            return; 
+        }
         this.model.damage = damage;
     }
 
     setFaction(faction){
-        // TODO Check type
+        if(faction && typeof(faction) !== "string") {
+            console.error("Wrong type detected for variable \"faction\" expected string\nvalue: " + faction + ", type: " + typeof(faction));
+            return; 
+        }
         this.model.faction = faction;
     }
     

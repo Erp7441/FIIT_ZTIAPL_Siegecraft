@@ -40,7 +40,7 @@ export class CharacterController extends Unit.UnitController {
                             y: position.y
                         },
                         dimensions:{
-                            width: this.model.dimensions.width/2, // TODO set dynamically
+                            width: this.model.dimensions.width/2,
                             height: this.model.dimensions.height/2
                         }
                     }
@@ -58,14 +58,20 @@ export class CharacterController extends Unit.UnitController {
         return this.model.selected;
     }
         
-    setIsMoving(bState){
-        // TODO Check type
-        this.model.isMoving = bState;
+    setIsMoving(state){
+        if(state && typeof(state) !== "boolean") {
+            console.error("Wrong type detected for variable \"state\" expected boolean\nvalue: " + state + ", type: " + typeof(state));
+            return; 
+        }
+        this.model.isMoving = state;
     }
 
-    setSelected(bState){
-        // TODO Check type
-        this.model.selected = bState;
+    setSelected(state){
+        if(state && typeof(state) !== "boolean") {
+            console.error("Wrong type detected for variable \"state\" expected boolean\nvalue: " + state + ", type: " + typeof(state));
+            return; 
+        }
+        this.model.selected = state;
     }
 
 }

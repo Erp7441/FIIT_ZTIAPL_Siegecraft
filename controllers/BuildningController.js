@@ -57,13 +57,19 @@ export class BuildingController extends Unit.UnitController {
         return this.model.connections;
     }
 
-    setIsBeingCaptured(bState){
-        // TODO Check type
-        this.model.isBeingCaptured = bState;
+    setIsBeingCaptured(state){
+        if(state && typeof(state) !== "boolean") {
+            console.error("Wrong type detected for variable \"state\" expected boolean\nvalue: " + state + ", type: " + typeof(state));
+            return; 
+        }
+        this.model.isBeingCaptured = state;
     }
 
     setID(ID){
-        // TODO Check type
+        if(ID && typeof(ID) !== "number") {
+            console.error("Wrong type detected for variable \"ID\" expected number\nvalue: " + ID + ", type: " + typeof(ID));
+            return; 
+        }
         this.model.ID = ID;
     }
 

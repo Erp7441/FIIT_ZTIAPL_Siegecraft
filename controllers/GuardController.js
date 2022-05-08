@@ -58,7 +58,6 @@ export class GuardController extends Character.CharacterController {
                 this.move(buildingToMoveTo.getPosition());
             }
             this.setMoved(undefined);
-            // return buildingToMoveTo; //TODO remove this
         }
         return undefined;
     }
@@ -67,25 +66,36 @@ export class GuardController extends Character.CharacterController {
         return this.model.armor;
     }
 
-    setArmor(armor){
-        // TODO Check type
-        this.model.armor = armor;
-    }
-
     getAvailableBuildings(){
         return this.model.availableBuildings;
     }
-
-    setAvailableBuildings(array){
-        this.model.availableBuildings = array;
-    }
-
+    
     getCanCaptureBase(){
         return this.model.canCaptureBase;
     }
 
-    setCanCaptureBase(bState){
-        this.model.canCaptureBase = bState;
+    setAvailableBuildings(array){
+        if(array && typeof(array) !== "object") {
+            console.error("Wrong type detected for variable \"array\" expected object\nvalue: " + array + ", type: " + typeof(array));
+            return; 
+        }
+        this.model.availableBuildings = array;
+    }
+    
+    setArmor(armor){
+        if(armor && typeof(armor) !== "number") {
+            console.error("Wrong type detected for variable \"velocity\" expected number\nvalue: " + armor + ", type: " + typeof(armor));
+            return;
+        }
+        this.model.armor = armor;
+    }
+    
+    setCanCaptureBase(state){
+        if(state && typeof(state) !== "boolean") {
+            console.error("Wrong type detected for variable \"state\" expected boolean\nvalue: " + state + ", type: " + typeof(state));
+            return; 
+        }
+        this.model.canCaptureBase = state;
     }
     
 }
