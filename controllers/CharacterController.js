@@ -13,10 +13,10 @@ export class CharacterController extends Unit.UnitController {
         this.model.position.y += position.y * this.model.velocity.y;
     }
 
-    move(position, bCombat){
+    move(position){
         if(this.getIsMoving() === true){
-    
-            if(bCombat) { return; }
+            
+            if(this.getCombat()) { return; }
 
             // Diffs
             let dX = position.x - this.model.position.x;

@@ -330,7 +330,7 @@ function attackBuildings({unit, buildingUnits}){
                     buildingUnit.getUnitType() !== 'base'
                 ){
                     unit.setMoved(undefined);
-                    unit.setCombat(true);
+                    unit.setCombat(unit.isColliding(buildingUnit));
 
                     // Attacking player building
                     buildingUnit.setAttacked(setTimeout(() => {
@@ -371,7 +371,6 @@ function moveUnit({unit, buildingUnits, fps}){
                 unit.moveToBuilding(buildingUnits);
             }, 1000/fps));
         }
-        unit.setCombat(false);       
     }
 }
 
