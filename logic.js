@@ -86,7 +86,7 @@ addEventListener('click', (event) => {
 function clearScreen() {
     context.fillStyle = 'white';
     context.fillRect(0, 0, canvas.width, canvas.height);
-    drawMap(canvas, context, tiles, map);
+    drawMap(canvas, context, tiles, map, false);
     drawMap(canvas, context, enviroment, props, false); // TODO complete this
 }
 
@@ -507,21 +507,23 @@ export function animate({fps, state}){
         
         // Drawing code
         clearScreen();
-        playerUnits.forEach(playerUnit => playerUnit.drawTexture());
-        enemyUnits.forEach(enemyUnit => enemyUnit.drawTexture());
-        buildingUnits.forEach(buildingUnit => buildingUnit.drawTexture());
+        // TODO uncomment
+        //playerUnits.forEach(playerUnit => playerUnit.drawTexture());
+        //enemyUnits.forEach(enemyUnit => enemyUnit.drawTexture());
+        //buildingUnits.forEach(buildingUnit => buildingUnit.drawTexture());
     }
 
-    playerHandler();
+    // TODO uncomment
+    //playerHandler();
 
-    enemyHandler({
+    /*enemyHandler({
         fps: fps
     });
 
     buildingsHandler({
         state: state,
         animationFrame: frameID
-    });
+    });*/
 
     // TODO fixnut victory screen menu button bug
 
@@ -539,17 +541,19 @@ export function initialize(){
     enemyUnits = new Array();
     spawnPoints = new Array();
 
-    /*map = Map.maps[generateRandom({
+
+
+    const level = 1;
+    /*const level = generateRandom({
         min: 0,
         max: Map.maps.length-1
-    })]*/
-    /*props = Map.props[generateRandom({
-        min: 0,
-        max: Map.props.length-1
-    })]*/
+    })
+    
+    map = Map.maps[level]
+    props = Map.props[level]*/
 
-    map = Map.maps[0] // TODO complete this
-    props = Map.props[0] // TODO complete this
+    map = Map.maps[level] // TODO complete this
+    props = Map.props[level] // TODO complete this
 
 
 

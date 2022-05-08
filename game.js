@@ -196,4 +196,4 @@ for (const button of backButtons) {
     button.addEventListener('click', showMainMenu);
 }
 
-//playGame(); // TODO remove
+playGame(); // TODO remove
