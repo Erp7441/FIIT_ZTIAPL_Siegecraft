@@ -11,7 +11,7 @@ canvas.height = 960;
 const playButton = document.getElementById('playButton');
 const settingsButton = document.getElementById('settingsButton');
 const controlsButton = document.getElementById('controlsButton');
-const retryButton = document.getElementById('retryButton');
+const retryButtons = document.getElementsByClassName('retryButton');
 const backButtons = document.getElementsByClassName('backButtons');
 const quitButtons = document.getElementsByClassName('quitButtons');
 const soundButton = document.getElementById('soundButton');
@@ -180,7 +180,6 @@ window.addEventListener('load', () => {
 playButton.addEventListener('click', playGame);
 settingsButton.addEventListener('click', showSettings);
 controlsButton.addEventListener('click', showControls);
-retryButton.addEventListener('click', playGame);
 soundButton.addEventListener('click', sound);
 musicButton.addEventListener('click', () => music());
 
@@ -194,4 +193,8 @@ for (const button of quitButtons){
 
 for (const button of backButtons) {
     button.addEventListener('click', showMainMenu);
+}
+
+for (const button of retryButtons) {
+    button.addEventListener('click', playGame);
 }

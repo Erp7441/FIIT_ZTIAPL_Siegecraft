@@ -26,7 +26,7 @@ const BuildingPrototype = {
     damage: 30
 }
 
-let difficulty = 0;
+let difficulty = 2;
 const DifficultyPrototype = [
     {
         time: 1801,
@@ -70,6 +70,7 @@ let props = undefined;
 let numberOfPlayerBuildings = 0;
 let numberOfEnemyBuildings = 0;
 let timerID = undefined;
+let time = DifficultyPrototype[difficulty].time;
 
 const mouse = {
     x: innerWidth / 2,
@@ -534,12 +535,12 @@ function updateTime(gameState){
             return;
         }
 
-        if (--DifficultyPrototype[difficulty].time <= -1) {
-            DifficultyPrototype[difficulty].time = 0;   
+        if (--time <= -1) {
+            time = 0;   
         }
 
-        minutes = parseInt(DifficultyPrototype[difficulty].time / 60, 10)
-        seconds = parseInt(DifficultyPrototype[difficulty].time % 60, 10);
+        minutes = parseInt(time / 60, 10)
+        seconds = parseInt(time % 60, 10);
 
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
@@ -612,7 +613,10 @@ export function initialize(){
 
     numberOfPlayerBuildings = 0;
     numberOfEnemyBuildings = 0;
+
     
+    timer.innerHTML = "00:00";
+    time = DifficultyPrototype[difficulty].time;
     timerID = undefined;
 
     const level = generateRandom({
