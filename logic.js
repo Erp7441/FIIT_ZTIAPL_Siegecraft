@@ -29,7 +29,7 @@ const BuildingPrototype = {
 let difficulty = 0; // TODO set difficulty in menu
 const DifficultyPrototype = [
     {
-        time: 1,
+        time: 1801,
         numberOfBuildings: 5,
         numberOfPlayerUnits: 6,
         numberOfEnemyUnits: 3

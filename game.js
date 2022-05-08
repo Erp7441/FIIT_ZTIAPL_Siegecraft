@@ -39,7 +39,10 @@ function playGame(){
     state.gameOver = false;
     state.victory = false;
 
-    music(false); // Stops music on playGame // TODO change music on playGame
+    changeMusic('./sounds/soundtrack/'+generateRandom({
+        min: 1,
+        max: 8
+    })+'.mp3');
 
     let init = new Promise((resolve) => {
         Logic.initialize();
@@ -91,6 +94,8 @@ function showMainMenu(){
     const gameOverScreen = document.getElementById('gameOverScreen');
     const victoryScreen = document.getElementById('victoryScreen');
 
+    changeMusic('./sounds/MainTheme.mp3');
+
     mainMenu.style.visibility = 'visible';
     settingsMenu.style.visibility = 'hidden';
     controlsMenu.style.visibility = 'hidden';
@@ -104,6 +109,7 @@ function showGameOver(){
     
     gameOverScreen.style.visibility = 'visible';
     canvas.style.visibility = 'hidden';
+    playFx('./sounds/GameOver.mp3');
 }
 
 function showVictory(){
@@ -111,6 +117,7 @@ function showVictory(){
     
     victoryScreen.style.visibility = 'visible';
     canvas.style.visibility = 'hidden';
+    playFx('./sounds/Victory.mp3');
 }
 
 function quitGame(){
@@ -151,6 +158,14 @@ function music(override){
     }
 }
 
+function changeMusic(path){
+    
+    music(false);
+    const musicElement = document.getElementById('musicElement');
+    musicElement.src = path;
+    music(true);
+}
+
 function playFx(path){
 
     if(localStorage.getItem('bPlayFx') === 'false'){ return; }
@@ -164,6 +179,10 @@ function playFx(path){
         console.log(error);
     }
     
+}
+
+function generateRandom({min, max}){
+    return Math.floor(Math.random() * (max - min)) + min;
 }
 
 // ----------------------------- EVENT LISTENERS ----------------------------
