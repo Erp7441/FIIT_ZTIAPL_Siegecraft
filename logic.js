@@ -44,7 +44,7 @@ const DifficultyPrototype = [
     {
         name: "Hard",
         time: 451,
-        numberOfBuildings: 20,
+        numberOfBuildings: 15,
         numberOfPlayerUnits: 7,
         numberOfEnemyUnits: 10
     }
@@ -254,7 +254,7 @@ function createBuildings({numberOfBuildings, storage}) {
                 max: 7
             })+'.png',
             position: generateCoordinates({
-                min: 0,
+                min: 150,
                 max: 800,
                 storage: spawnPoints,
                 spacing: 150

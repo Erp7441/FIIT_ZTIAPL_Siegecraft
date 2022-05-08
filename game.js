@@ -185,12 +185,14 @@ controlsButton.addEventListener('click', showControls);
 retryButton.addEventListener('click', playGame);
 
 soundButton.addEventListener('click', () => {
-    localStorage.setItem('fxVolume', setVolumeDynamically(parseFloat(localStorage.getItem('fxVolume')))) 
+    localStorage.setItem('fxVolume', setVolumeDynamically(parseFloat(localStorage.getItem('fxVolume'))))
+    alert('Sound: ' + parseFloat(localStorage.getItem('fxVolume'))*100+"%");
 });
 
 musicButton.addEventListener('click', () => {
     localStorage.setItem('musicVolume', setVolumeDynamically(parseFloat(localStorage.getItem('musicVolume')))) 
     musicElement.volume = parseFloat(localStorage.getItem('musicVolume'));
+    alert('Music: ' + parseFloat(localStorage.getItem('musicVolume'))*100+"%");
 });
 
 for (const button of buttons) {
