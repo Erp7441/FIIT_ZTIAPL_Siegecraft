@@ -195,5 +195,3 @@ for (const button of quitButtons){
 for (const button of backButtons) {
     button.addEventListener('click', showMainMenu);
 }
-
-playGame(); // TODO remove

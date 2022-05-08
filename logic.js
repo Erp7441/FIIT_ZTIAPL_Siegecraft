@@ -41,8 +41,8 @@ let buildingUnits = new Array();
 let playerUnits = new Array();
 let enemyUnits = new Array();
 let spawnPoints = new Array();
-let map = undefined; // TODO complete this
-let props = undefined; // TODO complete this
+let map = undefined;
+let props = undefined;
 
 const mouse = {
     x: innerWidth / 2,
@@ -86,8 +86,8 @@ addEventListener('click', (event) => {
 function clearScreen() {
     context.fillStyle = 'white';
     context.fillRect(0, 0, canvas.width, canvas.height);
-    drawMap(canvas, context, tiles, map, false);
-    drawMap(canvas, context, enviroment, props, false); // TODO complete this
+    drawMap(canvas, context, tiles, map);
+    drawMap(canvas, context, enviroment, props);
 }
 
 function loadTextures(path, numberOfTextures){
@@ -102,16 +102,12 @@ function loadTextures(path, numberOfTextures){
     return textures;
 }
 
-function drawMap(canvas, context, textures, map, debug){
+function drawMap(canvas, context, textures, map ){
     for(let x = 0; x < canvas.width; x+=64) {
         for(let y = 0; y < canvas.height; y+=64) {
             if(map[y/64][x/64] !== 0){
                 context.drawImage(textures[map[y/64][x/64]-1], x, y, 64, 64);
-            }
-            if(debug){ // TODO remove this debug log
-                context.fillText('y: ' + (y/64) + ' x:' + (x/64+1), x+16, y-16, 64, 64);
-            }
-            
+            }            
         }
     }
 }
@@ -507,23 +503,21 @@ export function animate({fps, state}){
         
         // Drawing code
         clearScreen();
-        // TODO uncomment
-        //playerUnits.forEach(playerUnit => playerUnit.drawTexture());
-        //enemyUnits.forEach(enemyUnit => enemyUnit.drawTexture());
-        //buildingUnits.forEach(buildingUnit => buildingUnit.drawTexture());
+        playerUnits.forEach(playerUnit => playerUnit.drawTexture());
+        enemyUnits.forEach(enemyUnit => enemyUnit.drawTexture());
+        buildingUnits.forEach(buildingUnit => buildingUnit.drawTexture());
     }
 
-    // TODO uncomment
-    //playerHandler();
+    playerHandler();
 
-    /*enemyHandler({
+    enemyHandler({
         fps: fps
     });
 
     buildingsHandler({
         state: state,
         animationFrame: frameID
-    });*/
+    });
 
     // TODO fixnut victory screen menu button bug
 
@@ -541,20 +535,13 @@ export function initialize(){
     enemyUnits = new Array();
     spawnPoints = new Array();
 
-
-
-    const level = 1;
-    /*const level = generateRandom({
+    const level = generateRandom({
         min: 0,
         max: Map.maps.length-1
     })
     
     map = Map.maps[level]
-    props = Map.props[level]*/
-
-    map = Map.maps[level] // TODO complete this
-    props = Map.props[level] // TODO complete this
-
+    props = Map.props[level]
 
 
     let buildingModels =[
