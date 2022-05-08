@@ -85,6 +85,17 @@ addEventListener('click', (event) => {
 
     console.log({Message: "Mouse", X: mouse.x, Y: mouse.y});
 
+    const playSound = (path) => {
+        const fx = new Audio(path);
+        fx.load();
+        fx.volume = parseFloat(localStorage.getItem('fxVolume'));
+        fx.play().catch((e) => {
+            //console.error(e); //? Uncomment if debugging
+        });
+    }
+
+    playSound('./sounds/Click.wav');
+
     playerUnits.forEach(playerUnit  => {
 
         if(event.ctrlKey){

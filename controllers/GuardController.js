@@ -8,13 +8,35 @@ export class GuardController extends Character.CharacterController {
         });
     }
     attack(enemy){
+
+        const generateRandom = ({min, max}) => {
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+
+        const playSound = (path) => {
+            const fx = new Audio(path);
+            fx.load();
+            fx.volume = parseFloat(localStorage.getItem('fxVolume'));
+            fx.play().catch((e) => {
+                //console.error(e); //? Uncomment if debugging
+            });
+        }
+
         if(enemy && enemy.model && enemy.model.hp && this.model && this.model.damage){
             this.setCombat(true);
             const coeficient =  Math.random() * (4 - 1) + 1;
             enemy.model.hp -= this.model.damage * coeficient;
+            playSound('../sounds/combat/combat'+generateRandom({
+                min: 1,
+                max: 23
+            })+'.wav');
         }
         if(enemy.model.hp <= 0){
             this.setCombat(false);
+            playSound('../sounds/combat/dying'+generateRandom({
+                min: 1,
+                max: 10
+            })+'.wav');
         }
     }
 

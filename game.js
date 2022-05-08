@@ -39,7 +39,7 @@ function playGame(){
     state.gameOver = false;
     state.victory = false;
 
-    changeMusic('./sounds/soundtrack/'+generateRandom({
+    changeMusic('./sounds/soundtrack/soundtrack'+generateRandom({
         min: 1,
         max: 8
     })+'.mp3');
@@ -148,15 +148,12 @@ function changeMusic(path){
 }
 
 function playFx(path){
-    try {
-        const fx = new Audio(path);
-        fx.load();
-        fx.volume = parseFloat(localStorage.getItem('fxVolume'));
-        fx.play();
-    } catch (error) {
-        console.log(error);
-    }
-    
+    const fx = new Audio(path);
+    fx.load();
+    fx.volume = parseFloat(localStorage.getItem('fxVolume'));
+    fx.play().catch((e) => {
+        //console.error(e); //? Uncomment if debugging
+    });
 }
 
 function generateRandom({min, max}){
@@ -194,7 +191,7 @@ musicButton.addEventListener('click', () => {
 });
 
 for (const button of buttons) {
-    button.addEventListener('click', () => playFx('sounds/combat/metal4.wav'));
+    button.addEventListener('click', () => playFx('sounds/combat/combat9.wav'));
 }
 
 for (const button of quitButtons){
