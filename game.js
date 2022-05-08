@@ -17,6 +17,7 @@ const quitButtons = document.getElementsByClassName('quitButtons');
 const soundButton = document.getElementById('soundButton');
 const musicButton = document.getElementById('musicButton');
 const buttons = document.getElementsByClassName('buttons');
+const counters = document.getElementById('counters');
 
 let state = { gameOver: false, victory: false };
 
@@ -29,6 +30,7 @@ function playGame(){
     mainMenu.style.visibility = 'hidden';
     gameOverScreen.style.visibility = 'hidden';
     canvas.style.visibility = 'visible';
+    counters.style.visibility = 'visible';
 
     // -------------------------------- START GAME --------------------------------
 
@@ -90,6 +92,7 @@ function showMainMenu(){
     settingsMenu.style.visibility = 'hidden';
     controlsMenu.style.visibility = 'hidden';
     gameOverScreen.style.visibility = 'hidden';
+    counters.style.visibility = 'hidden';
 }
 
 function showGameOver(){
@@ -149,9 +152,6 @@ function playFx(path){
     if(localStorage.getItem('bPlayFx') === 'false'){ return; }
 
     try {
-
-        // TODO get rid of "Uncaught (in promise) DOMException: The fetching process for the media resource was aborted by the user agent at the user's request."
-
         const fx = new Audio(path);
         fx.load();
         fx.volume = 0.5; // TODO set volume dynamically

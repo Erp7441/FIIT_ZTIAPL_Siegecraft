@@ -107,3 +107,9 @@ canvas, .menu{
     left: 20rem;
 }
 
+#counters{
+    visibility: hidden;
+    color: white;
+    position: relative;
+    left: 70rem;
+}

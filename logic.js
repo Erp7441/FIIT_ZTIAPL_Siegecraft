@@ -5,8 +5,6 @@ import * as Map from './maps.js';
 
 const tiles = loadTextures('images/textures/PNG/Default size/Tile/scifiTile_XX.png',12);
 const enviroment = loadTextures('images/textures/PNG/Default size/Environment/scifiEnvironment_XX.png', 20);
-const numberOfBuildings = 20; // Controls number of neural buildings spawned into the game
-const numberOfUnits = 1; // Controls number of units spawned into the game
 
 
 const UnitPrototype = {
@@ -28,10 +26,36 @@ const BuildingPrototype = {
     damage: 30
 }
 
+let difficulty = 0;
+const DifficultyPrototype = [
+    {
+        time: 1801,
+        numberOfBuildings: 5,
+        numberOfPlayerUnits: 6,
+        numberOfEnemyUnits: 3
+    },
+    {
+        time: 901,
+        numberOfBuildings: 10,
+        numberOfPlayerUnits: 5,
+        numberOfEnemyUnits: 5
+    },
+    {
+        time: 451,
+        numberOfBuildings: 20,
+        numberOfPlayerUnits: 7,
+        numberOfEnemyUnits: 10
+    }
+]
+
+
 // -------------------------------- VARIABLES --------------------------------
 
 let then = Date.now(), now = undefined, elapsed = undefined; // Used to calculate elapsed time (FPS)
 
+const playerScore = document.getElementById('playerScore');
+const enemyScore = document.getElementById('enemyScore');
+const timer = document.getElementById('timer');
 const canvas = document.getElementById('board');
 const context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -43,6 +67,9 @@ let enemyUnits = new Array();
 let spawnPoints = new Array();
 let map = undefined;
 let props = undefined;
+let numberOfPlayerBuildings = 0;
+let numberOfEnemyBuildings = 0;
+let timerID = undefined;
 
 const mouse = {
     x: innerWidth / 2,
@@ -242,6 +269,7 @@ function generateUnits({buildingUnit, playerUnits, enemyUnits, canvas, context})
     if(buildingUnit.getTimeoutID() === undefined && buildingUnit.getFaction() !== 'neutral'){
         buildingUnit.setTimeoutID(setTimeout(() => {
             let unitsStorage = (buildingUnit.getFaction() === 'player' ?  playerUnits : enemyUnits);
+            let numberOfUnits = (buildingUnit.getFaction() === 'player' ? DifficultyPrototype[difficulty].numberOfPlayerUnits : DifficultyPrototype[difficulty].numberOfEnemyUnits);
             if(unitsStorage.length < numberOfUnits){
                 unitsStorage.push(buildingUnit.createUnit({
                     texture: 'images/textures/PNG/Default size/Unit/scifiUnit_0'+generateRandom({
@@ -347,7 +375,6 @@ function moveUnit({unit, buildingUnits, fps}){
 }
 
 function checkNumberOfUnits({units, max}){
-    // TODO find better way to prevent from spawning more units than allowed
     while(units.length > max){
         units.splice(units.length - 1, 1);
     }
@@ -418,16 +445,19 @@ function setCaptureState({playerCaptureState, enemyCaptureState}){
 function buildingsHandler({state, animationFrame}){
     
 
-    let numberOfPlayerBuildings = 0; // TODO write on screen
-    let numberOfEnemyBuildings = 0; // TODO write on screen
+    numberOfPlayerBuildings = 0;
+    numberOfEnemyBuildings = 0;
+    
     // Buildings interactions
     buildingUnits.forEach(buildingUnit => {
 
-        if(buildingUnit.getFaction() === 'player'){
-            numberOfPlayerBuildings++;
-        }
-        else if(buildingUnit.getFaction() === 'enemy'){
-            numberOfEnemyBuildings++;
+        if(buildingUnit.getUnitType() != 'base'){
+            if(buildingUnit.getFaction() === 'player'){
+                numberOfPlayerBuildings++;
+            }
+            else if(buildingUnit.getFaction() === 'enemy'){
+                numberOfEnemyBuildings++;
+            }
         }
         
         // Game end conditions
@@ -460,11 +490,11 @@ function buildingsHandler({state, animationFrame}){
         // Checking if we haven't spawned more units than allowed
         checkNumberOfUnits({
             units: playerUnits,
-            max: numberOfUnits
+            max: DifficultyPrototype[difficulty].numberPlayerOfUnits
         });
         checkNumberOfUnits({
             units: enemyUnits,
-            max: numberOfUnits
+            max: DifficultyPrototype[difficulty].numberEnemyOfUnits
         });
         
     });
@@ -488,6 +518,35 @@ function buildingsHandler({state, animationFrame}){
         });
     }
     
+}
+
+function updateScore(){
+    playerScore.innerHTML = numberOfPlayerBuildings;
+    enemyScore.innerHTML = numberOfEnemyBuildings;
+}
+
+function updateTime(gameState){
+    let minutes, seconds;
+
+    timerID = setInterval(() => {
+
+        if(gameState.victory === true || gameState.gameOver === true){
+            return;
+        }
+
+        if (--DifficultyPrototype[difficulty].time <= -1) {
+            DifficultyPrototype[difficulty].time = 0;   
+        }
+
+        minutes = parseInt(DifficultyPrototype[difficulty].time / 60, 10)
+        seconds = parseInt(DifficultyPrototype[difficulty].time % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        timer.innerHTML = minutes + ":" + seconds;
+
+    }, 1000);
 }
 
 export function animate({fps, state}){
@@ -514,10 +573,26 @@ export function animate({fps, state}){
         fps: fps
     });
 
-    buildingsHandler({
-        state: state,
-        animationFrame: frameID
-    });
+    new Promise((resolve) => {
+        buildingsHandler({
+            state: state,
+            animationFrame: frameID
+        });
+        resolve()
+    }).then(() => {
+        updateScore();
+    })
+
+    if(!timerID){ updateTime(state); }
+    if(DifficultyPrototype[difficulty].time <= 0){
+        cancelAnimationFrame(frameID);
+        if(numberOfPlayerBuildings < numberOfEnemyBuildings){
+            state.gameOver = true;
+        }
+        else{
+            state.victory = true;
+        }
+    }
 
     // TODO fixnut victory screen menu button bug
 
@@ -534,6 +609,11 @@ export function initialize(){
     playerUnits = new Array();
     enemyUnits = new Array();
     spawnPoints = new Array();
+
+    numberOfPlayerBuildings = 0;
+    numberOfEnemyBuildings = 0;
+    
+    timerID = undefined;
 
     const level = generateRandom({
         min: 0,
@@ -593,7 +673,7 @@ export function initialize(){
 
     new Promise((resolve) => {
         createBuildings({
-            numberOfBuildings: numberOfBuildings,
+            numberOfBuildings: DifficultyPrototype[difficulty].numberOfBuildings,
             storage: buildingUnits
         });
         resolve()
