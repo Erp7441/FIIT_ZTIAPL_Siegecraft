@@ -174,6 +174,9 @@ window.addEventListener('load', () => {
         musicElement.volume = localStorage.getItem('musicVolume');
         musicElement.play();
     }
+    if(localStorage.getItem('difficulty') === null){
+        localStorage.setItem('difficulty', 0);
+    }
 });
 
 playButton.addEventListener('click', playGame);

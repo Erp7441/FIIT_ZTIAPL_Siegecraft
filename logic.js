@@ -26,21 +26,23 @@ const BuildingPrototype = {
     damage: 30
 }
 
-let difficulty = 0; // TODO set difficulty in menu
 const DifficultyPrototype = [
     {
+        name: "Easy",
         time: 1801,
         numberOfBuildings: 5,
         numberOfPlayerUnits: 6,
         numberOfEnemyUnits: 3
     },
     {
+        name: "Normal",
         time: 901,
         numberOfBuildings: 10,
         numberOfPlayerUnits: 5,
         numberOfEnemyUnits: 5
     },
     {
+        name: "Hard",
         time: 451,
         numberOfBuildings: 20,
         numberOfPlayerUnits: 7,
@@ -56,6 +58,7 @@ let then = Date.now(), now = undefined, elapsed = undefined; // Used to calculat
 const playerScore = document.getElementById('playerScore');
 const enemyScore = document.getElementById('enemyScore');
 const timer = document.getElementById('timer');
+const difficultyButton = document.getElementById('difficultyButton');
 const canvas = document.getElementById('board');
 const context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -70,7 +73,8 @@ let props = undefined;
 let numberOfPlayerBuildings = 0;
 let numberOfEnemyBuildings = 0;
 let timerID = undefined;
-let time = DifficultyPrototype[difficulty].time;
+let time = undefined;
+let difficulty = parseInt(localStorage.getItem('difficulty'));
 
 const mouse = {
     x: innerWidth / 2,
@@ -119,6 +123,15 @@ addEventListener('click', (event) => {
         
     })
 });
+
+difficultyButton.addEventListener('click', () => {
+    difficulty++;
+    if(difficulty+1 > DifficultyPrototype.length){
+        difficulty = 0;
+    }
+    localStorage.setItem('difficulty', difficulty);
+    alert('Difficulty: ' + DifficultyPrototype[difficulty].name);
+})
 
 // -------------------------------- FUNCTIONS --------------------------------
 
@@ -608,6 +621,8 @@ export function animate({fps, state}){
 
 export function initialize(){
     
+    difficulty = parseInt(localStorage.getItem('difficulty'));
+
     // Used to calculate elapsed time (FPS)
     then = Date.now();
     now = undefined;

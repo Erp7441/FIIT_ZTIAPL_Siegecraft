@@ -73,7 +73,7 @@ canvas, .menu{
 }
 
 .settingsMenuButtons:not(:first-child){
-    margin-bottom: 5.2rem;
+    margin-bottom: 3.5rem;
 }
 
 #controlsMenuButton{
@@ -108,8 +108,14 @@ canvas, .menu{
 }
 
 #counters{
+    display: inline-block;
     visibility: hidden;
+    width:fit-content;
+    height:fit-content;
     color: white;
     position: relative;
     left: 70rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
 }
