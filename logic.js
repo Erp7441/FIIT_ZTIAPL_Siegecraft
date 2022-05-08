@@ -75,6 +75,7 @@ let numberOfEnemyBuildings = 0;
 let timerID = undefined;
 let time = undefined;
 let difficulty = parseInt(localStorage.getItem('difficulty'));
+let paused = false;
 
 const mouse = {
     x: innerWidth / 2,
@@ -87,8 +88,6 @@ addEventListener('click', (event) => {
     mouse.x = event.clientX;
     mouse.y = event.clientY;
 
-    console.log({Message: "Mouse", X: mouse.x, Y: mouse.y});
-
     const playSound = (path) => {
         const fx = new Audio(path);
         fx.load();
@@ -100,28 +99,30 @@ addEventListener('click', (event) => {
 
     playSound('./sounds/Click.wav');
 
-    playerUnits.forEach(playerUnit  => {
+    if(!paused){
+        playerUnits.forEach(playerUnit  => {
 
-        if(event.ctrlKey){
-            const mouseObject = { 
-                model:{
-                    position:{
-                        x: mouse.x,
-                        y: mouse.y
-                    },
-                    dimensions:{
-                        width: 100,
-                        height: 100
+            if(event.ctrlKey){
+                const mouseObject = { 
+                    model:{
+                        position:{
+                            x: mouse.x,
+                            y: mouse.y
+                        },
+                        dimensions:{
+                            width: 100,
+                            height: 100
+                        }
                     }
                 }
+                playerUnit.setSelected(playerUnit.isColliding(mouseObject));
             }
-            playerUnit.setSelected(playerUnit.isColliding(mouseObject));
-        }
-        else{
-            playerUnit.setIsMoving(true);
-        }
-        
-    })
+            else{
+                playerUnit.setIsMoving(true);
+            }
+            
+        })
+    }
 });
 
 difficultyButton.addEventListener('click', () => {
@@ -132,6 +133,26 @@ difficultyButton.addEventListener('click', () => {
     localStorage.setItem('difficulty', difficulty);
     alert('Difficulty: ' + DifficultyPrototype[difficulty].name);
 })
+
+window.addEventListener('keydown', (event) => {
+    event.preventDefault();
+    if(event.key === 'Escape'){
+        if(paused){
+            let minutes = parseInt(time / 60, 10)
+            let seconds = parseInt(time % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            timer.innerHTML = minutes + ":" + seconds;
+            paused = false;
+        }
+        else {
+            timer.innerHTML = 'Paused';
+            paused = true;
+        }
+    }
+});
 
 // -------------------------------- FUNCTIONS --------------------------------
 
@@ -286,6 +307,10 @@ function captureBuiding({attackingUnit, capturedUnit}){
                 clearTimeout(attackingUnit.getTimeoutID());
                 attackingUnit.setTimeoutID(undefined);
             }, 5000));
+        }
+        else if(paused && attackingUnit.getTimeoutID() !== undefined){
+            clearTimeout(attackingUnit.getTimeoutID());
+            attackingUnit.setTimeoutID(undefined);
         }        
     }
 }
@@ -315,6 +340,10 @@ function generateUnits({buildingUnit, playerUnits, enemyUnits, canvas, context})
             buildingUnit.setTimeoutID(undefined);
         }, 5000));
     }
+    else if (paused && buildingUnit.getTimeoutID()){
+        clearTimeout(buildingUnit.getTimeoutID());
+        buildingUnit.setTimeoutID(undefined);
+    }
 }
 
 function attackUnits({unit, enemyUnits}){
@@ -334,6 +363,10 @@ function attackUnits({unit, enemyUnits}){
             if(enemyUnit.getHp() <= 0) {
                 enemyUnits.splice(index, 1);
             }
+        }
+        else if(paused && enemyUnit.getAttacked() !== undefined){
+            clearTimeout(enemyUnit.getAttacked());
+            enemyUnit.setAttacked(undefined);
         }
         index++;
     });
@@ -370,6 +403,10 @@ function attackBuildings({unit, buildingUnits}){
                     }
                 }
             }
+            else if(paused && buildingUnit.getAttacked() !== undefined){
+                clearTimeout(buildingUnit.getAttacked());
+                buildingUnit.setAttacked(undefined);
+            }
         });
     }
 }
@@ -394,6 +431,10 @@ function moveUnit({unit, buildingUnits, fps}){
             unit.setMoved(setTimeout(() => {
                 unit.moveToBuilding(buildingUnits);
             }, 1000/fps));
+        }
+        else if(paused && unit.getMoved() !== undefined){
+            clearTimeout(unit.getMoved());
+            unit.setMoved(undefined);
         }
     }
 }
@@ -554,7 +595,7 @@ function updateTime(gameState){
 
     timerID = setInterval(() => {
 
-        if(gameState.victory === true || gameState.gameOver === true){
+        if(paused || gameState.victory || gameState.gameOver){
             return;
         }
 
@@ -591,30 +632,32 @@ export function animate({fps, state}){
         buildingUnits.forEach(buildingUnit => buildingUnit.drawTexture());
     }
 
-    playerHandler();
+    if(!paused){
+        playerHandler();
 
-    enemyHandler({
-        fps: fps
-    });
-
-    new Promise((resolve) => {
-        buildingsHandler({
-            state: state,
-            animationFrame: frameID
+        enemyHandler({
+            fps: fps
         });
-        resolve()
-    }).then(() => {
-        updateScore();
-    })
 
-    if(!timerID){ updateTime(state); }
-    if(time <= 0){
-        cancelAnimationFrame(frameID);
-        if(numberOfPlayerBuildings < numberOfEnemyBuildings){
-            state.gameOver = true;
-        }
-        else{
-            state.victory = true;
+        new Promise((resolve) => {
+            buildingsHandler({
+                state: state,
+                animationFrame: frameID
+            });
+            resolve()
+        }).then(() => {
+            updateScore();
+        })
+
+        if(!timerID){ updateTime(state); }
+        if(time <= 0){
+            cancelAnimationFrame(frameID);
+            if(numberOfPlayerBuildings < numberOfEnemyBuildings){
+                state.gameOver = true;
+            }
+            else{
+                state.victory = true;
+            }
         }
     }
 }
